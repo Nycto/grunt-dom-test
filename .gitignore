@@ -3,3 +3,5 @@ npm-debug.log
 tmp
 tasks
 .tscache
+lib
+.baseDir.ts

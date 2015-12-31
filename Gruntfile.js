@@ -10,21 +10,27 @@
 
 module.exports = function(grunt) {
 
+    var tsOptions = {
+        sourceMap: false,
+        module: 'commonjs',
+        target: 'es5',
+        basePath: 'src'
+    };
+
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
         ts: {
+            lib: {
+                src: 'src/commonjs/*.ts',
+                outDir: 'lib/',
+                options: tsOptions
+            },
             task: {
-                files: [
-                    { src: 'src/dom-test.ts', dest: 'tasks/dom-test.js' },
-                ],
-                options: {
-                    sourceMap: false,
-                    module: 'commonjs',
-                    target: 'es5',
-                    basePath: 'src'
-                }
+                src: 'src/grunt/*.ts',
+                outDir: 'tasks/',
+                options: tsOptions
             }
         },
 
