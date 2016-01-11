@@ -12,7 +12,7 @@ module.exports = function(grunt) {
 
     var tsOptions = {
         sourceMap: false,
-        module: 'commonjs',
+        module: 'amd',
         target: 'es5',
         basePath: 'src'
     };
@@ -21,25 +21,25 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        ts: {
-            lib: {
-                src: 'src/commonjs/*.ts',
-                outDir: 'lib/',
-                options: tsOptions
-            },
-            task: {
-                src: 'src/grunt/*.ts',
-                outDir: 'tasks/',
-                options: tsOptions
-            }
-        },
-
         tslint: {
             options: {
                 configuration: grunt.file.readJSON("tslint.json")
             },
             dist: {
                 src: ['src/**/*.ts']
+            }
+        },
+
+        ts: {
+            lib: {
+                src: 'src/lib.ts',
+                out: 'lib/domTest.js',
+                options: tsOptions
+            },
+            task: {
+                src: 'src/task.ts',
+                out: 'task/grunt-dom-test.js',
+                options: tsOptions
             }
         },
 

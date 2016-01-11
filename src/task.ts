@@ -1,4 +1,8 @@
-/// <reference path="../../typings/gruntjs/gruntjs.d.ts" />
+/**
+ * The primary entry point for the grunt task
+ */
+
+/// <reference path="../typings/gruntjs/gruntjs.d.ts" />
 
 /** The list of valid options that can be passed to this module */
 interface UserConfig {
