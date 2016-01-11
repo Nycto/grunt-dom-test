@@ -36,9 +36,9 @@ module.exports = function(grunt) {
                 out: 'lib/domTest.js',
                 options: tsOptions
             },
-            task: {
+            tasks: {
                 src: 'src/task.ts',
-                out: 'task/grunt-dom-test.js',
+                out: 'tasks/grunt-dom-test.js',
                 options: tsOptions
             }
         },
