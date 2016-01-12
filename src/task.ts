@@ -4,6 +4,7 @@
 
 /// <reference path="../typings/gruntjs/gruntjs.d.ts" />
 /// <reference path="definition.ts" />
+/// <reference path="local.ts" />
 
 /** The list of valid options that can be passed to this module */
 class Options {
@@ -41,7 +42,17 @@ export = function ( grunt: IGrunt ) {
         opts.name,
         "Executes unit tests both locally and in browsers",
         function () {
-            console.log( opts.suites() );
+
+            // Typescript has no way of defining the type for `this`, so
+            // we need to rebind and do some casting.
+            var self = <grunt.task.ITask> this;
+
+            var done = self.async();
+
+            var suites = opts.suites();
+            Local.toMocha(suites).run((failures: number) => {
+                done(failures === 0);
+            });
         }
     );
 };
