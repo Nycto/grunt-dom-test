@@ -33,28 +33,40 @@ module.exports = function(grunt) {
         ts: {
             lib: {
                 src: 'src/lib.ts',
-                out: 'lib/domTest.js',
+                out: 'build/lib.js',
                 options: tsOptions
             },
             tasks: {
                 src: 'src/task.ts',
-                out: 'tasks/grunt-dom-test.js',
+                out: 'build/task.js',
                 options: tsOptions
+            }
+        },
+
+        concat: {
+            lib: {
+                src: [ 'src/define.js', 'build/lib.js' ],
+                dest: 'lib/grunt-dom-test.js',
+            },
+            tasks: {
+                src: [ 'src/define.js', 'build/task.js' ],
+                dest: 'tasks/grunt-dom-test.js',
             }
         },
 
         watch: {
             files: ['src/**/*.ts'],
-            tasks: ['tslint', 'ts']
+            tasks: ['default']
         },
     });
 
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-ts');
 
     // By default, lint and run all tests.
-    grunt.registerTask('default', ['tslint', 'ts']);
+    grunt.registerTask('default', ['tslint', 'ts', 'concat']);
 
 };
