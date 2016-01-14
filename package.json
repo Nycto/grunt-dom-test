@@ -23,6 +23,8 @@
     "test": "grunt test"
   },
   "devDependencies": {
+    "compression": "^1.6.0",
+    "express": "^4.13.3",
     "grunt": "~0.4.5",
     "grunt-contrib-concat": "^0.5.1",
     "grunt-contrib-watch": "^0.6.1",
@@ -32,7 +34,7 @@
     "mocha": "^2.3.4",
     "q": "^1.4.1",
     "tslint": "^3.2.1",
-    "typescript": "^1.8.0-dev.20160109"
+    "typescript": "^1.8.0-dev.20160113"
   },
   "peerDependencies": {
     "grunt": "~0.4.5",

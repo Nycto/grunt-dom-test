@@ -55,7 +55,7 @@ module.exports = function(grunt) {
         },
 
         watch: {
-            files: ['src/**/*.ts'],
+            files: ['src/**/*.ts', 'src/define.js'],
             tasks: ['default']
         },
     });

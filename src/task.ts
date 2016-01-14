@@ -3,8 +3,10 @@
  */
 
 /// <reference path="../typings/gruntjs/gruntjs.d.ts" />
-/// <reference path="definition.ts" />
-/// <reference path="local.ts" />
+
+import def = require("./definition");
+import local = require("./local");
+import server = require("./server");
 
 /** The list of valid options that can be passed to this module */
 class Options {
@@ -18,7 +20,7 @@ class Options {
     }
 
     /** Returns the list of suites defined by the consuming package */
-    suites(): Def.Suite[] {
+    suites(): def.Suite[] {
         var domTest = require("../lib/grunt-dom-test.js").__private;
 
         domTest.clear();
@@ -38,10 +40,18 @@ export = function ( grunt: IGrunt ) {
 
     const opts = new Options("domTest", grunt);
 
+    // Will be assigned the server instance the first time the task runs
+    var httpServe;
+
     grunt.registerTask(
         opts.name,
         "Executes unit tests both locally and in browsers",
         function () {
+
+            if ( !httpServe ) {
+                httpServe = new server.Server();
+                httpServe.start(() => { grunt.log.subhead("Server started"); });
+            }
 
             // Typescript has no way of defining the type for `this`, so
             // we need to rebind and do some casting.
@@ -50,7 +60,11 @@ export = function ( grunt: IGrunt ) {
             var done = self.async();
 
             var suites = opts.suites();
-            Local.toMocha(suites).run((failures: number) => {
+
+            // Update the http server with the new list of tests
+            httpServe.setSuites( suites );
+
+            local.toMocha(suites).run((failures: number) => {
                 done(failures === 0);
             });
         }
