@@ -38,8 +38,8 @@ class SuiteBuilder {
     /** The suite being constructed */
     private suite: def.Suite;
 
-    constructor ( suiteTitle: string ) {
-        this.suite = new def.Suite(suiteTitle);
+    constructor ( suitePrefix: string, suiteTitle: string ) {
+        this.suite = new def.Suite(suitePrefix, suiteTitle);
         suites.push(this.suite);
     }
 
@@ -66,14 +66,14 @@ class SuiteBuilder {
 
 /** Creates a function that starts creating a new suite */
 function buildSuite(prefix: string): (name: string) => SuiteBuilder {
-    return (name) => { return new SuiteBuilder(prefix + name); };
+    return (name) => { return new SuiteBuilder(prefix, name); };
 }
 
 export = {
-    a: buildSuite("A "),
-    an: buildSuite("An "),
-    the: buildSuite("The "),
-    given: buildSuite("Given "),
+    a: buildSuite("A"),
+    an: buildSuite("An"),
+    the: buildSuite("The"),
+    given: buildSuite("Given"),
     __private: {
         clear: () => { suites = []; },
         suites: () => { return suites; }

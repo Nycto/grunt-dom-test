@@ -188,7 +188,7 @@ export class Server {
             // Collect the test data into information about the suite
             return testHtml.then(testList => {
                 return {
-                    suite: suite.name,
+                    suite: suite.fullName(),
                     url: "/" + encodeURIComponent(suite.name),
                     tests: testList
                 };

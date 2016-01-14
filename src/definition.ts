@@ -35,19 +35,16 @@ export class Suite {
     /** Tests in this suite */
     tests: Test[] = [];
 
-    constructor( public name: string ) {}
+    constructor( public prefix: string, public name: string ) {}
+
+    /** Returns the full name for this test suite */
+    fullName(): string {
+        return this.prefix + " " + this.name + " should...";
+    }
 
     /** Returns the paths for all files needed by this suite */
     allFiles(): string[] {
         return this.utilities.concat(this.files);
-    }
-
-    /** Returns the JavaScript source for all files needed by this suite */
-    source(): string {
-        return this.utilities
-            .concat(this.files)
-            .map(file => { return fs.readFileSync(file); })
-            .join("\n");
     }
 };
 
