@@ -1,23 +1,25 @@
+/// <reference path="../typings/node/node.d.ts"/>
+/// <reference path="dom.ts"/>
+
 /**
  * The definition of a suite and a test
  */
 module Def {
 
+    var fs = require("fs");
+
     /** A callback used by the test to indicate it is completed */
     export type Done = () => void;
 
-    /** An interface for interacting with the DOM */
-    export interface DomHelper {}
-
     /** The user defined test */
-    export type TestCallback = (done: Done, $: DomHelper) => void;
+    export type TestCallback = (done: Done, $: DOM.Doc) => void;
 
     /** Bundled data about a test */
     export class Test {
         constructor (
             public name: string,
             public html: string,
-            public logic: TestCallback
+            public fn: TestCallback
         ) {}
     }
 
@@ -34,6 +36,19 @@ module Def {
         tests: Test[] = [];
 
         constructor( public name: string ) {}
+
+        /** Returns the paths for all files needed by this suite */
+        allFiles(): string[] {
+            return this.utilities.concat(this.files);
+        }
+
+        /** Returns the JavaScript source for all files needed by this suite */
+        source(): string {
+            return this.utilities
+                .concat(this.files)
+                .map(file => { return fs.readFileSync(file); })
+                .join("\n");
+        }
     };
 }
 
