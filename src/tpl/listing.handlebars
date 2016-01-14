@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gobo Tests</title>
+        <style>
+        iframe {
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            left: -500px;
+        }
+        .success:before {
+            content: "\2713 ";
+            color: green;
+        }
+        .failure:before {
+            content: "\2717 ";
+            color: red;
+        }
+        .error {
+            background: #fbe3e4;
+            color: #8a1f11;
+            border: 2px solid #fbc2c4;
+            padding: 0.8em;
+            margin: 5px 0;
+        }
+        </style>
+    </head>
+    <body>
+
+        <ul id='failures'>
+        </ul>
+
+        <h1>Tests</h1>
+        <ul>
+            {{#each suites}}
+                <li><a href='{{url}}'>{{suite}} should...</a>
+                    <ul>
+                        {{#each tests}}
+                            <li>
+                                <a test-report='{{testId}}' href='{{url}}'>
+                                    {{test}}
+                                </a>
+                                <script type='base64/html'
+                                    test-case='{{testId}}'
+                                    test-name='{{../suite}}: {{test}}'
+                                    test-url='{{url}}'>{{content}}
+                                </script>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </li>
+            {{/each}}
+        </ul>
+    </body>
+</html>

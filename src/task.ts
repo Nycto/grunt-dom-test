@@ -41,28 +41,32 @@ export = function ( grunt: IGrunt ) {
     const opts = new Options("domTest", grunt);
 
     // Will be assigned the server instance the first time the task runs
-    var httpServe;
+    var httpServer;
 
     grunt.registerTask(
         opts.name,
         "Executes unit tests both locally and in browsers",
         function () {
 
-            if ( !httpServe ) {
-                httpServe = new server.Server();
-                httpServe.start(() => { grunt.log.subhead("Server started"); });
-            }
-
             // Typescript has no way of defining the type for `this`, so
             // we need to rebind and do some casting.
             var self = <grunt.task.ITask> this;
+
+            // Start the server if it hasn't been spun up yet
+            if ( !httpServer ) {
+                httpServer = new server.Server();
+                httpServer.start().then(() => {
+                    grunt.log.subhead("Server started");
+                    grunt.log.writeln("");
+                });
+            }
 
             var done = self.async();
 
             var suites = opts.suites();
 
             // Update the http server with the new list of tests
-            httpServe.setSuites( suites );
+            httpServer.setSuites( suites );
 
             local.toMocha(suites).run((failures: number) => {
                 done(failures === 0);

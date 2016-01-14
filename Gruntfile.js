@@ -54,8 +54,17 @@ module.exports = function(grunt) {
             }
         },
 
+        copy: {
+            tpls: {
+                expand: true,
+                cwd: 'src/',
+                src: 'tpl/**',
+                dest: 'tasks/'
+            }
+        },
+
         watch: {
-            files: ['src/**/*.ts', 'src/define.js'],
+            files: ['src/**/*.ts', 'src/define.js', 'src/tpl/**'],
             tasks: ['default']
         },
     });
@@ -63,10 +72,11 @@ module.exports = function(grunt) {
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-ts');
 
     // By default, lint and run all tests.
-    grunt.registerTask('default', ['tslint', 'ts', 'concat']);
+    grunt.registerTask('default', ['tslint', 'ts', 'concat', 'copy']);
 
 };

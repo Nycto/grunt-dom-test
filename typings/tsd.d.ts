@@ -8,3 +8,4 @@
 /// <reference path="jsdom/jsdom.d.ts" />
 /// <reference path="q/Q.d.ts" />
 /// <reference path="compression/compression.d.ts" />
+/// <reference path="handlebars/handlebars.d.ts" />

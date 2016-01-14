@@ -5,6 +5,7 @@
 /// <reference path="../typings/node/node.d.ts"/>
 
 import dom = require("./dom");
+
 import fs = require("fs");
 
 /** A callback used by the test to indicate it is completed */
