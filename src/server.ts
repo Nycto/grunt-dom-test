@@ -13,20 +13,6 @@ import compression = require("compression");
 import Handlebars = require("handlebars");
 
 
-///** Loads fresh test data */
-//function load () {
-//
-//    // `require` caches modules. We need to clear that cache before
-//    // reloading to ensure we get fresh data
-//    Object.keys((<any> require).cache).forEach((key) => {
-//        if ( key.match(/test-data\.js$/) ) {
-//            delete (<any> require).cache[key];
-//        }
-//    });
-//
-//    return require("./test-data.js")();
-//}
-
 /** Attempts to read a file, throwing an error if it fails */
 function readFile(
     res: express.Response, path: string,
@@ -42,97 +28,6 @@ function readFile(
         }
     });
 }
-
-///** Given a list of file paths, returns the time of the most recent change */
-//function newestMTime ( paths: string[] ): number {
-//    return paths.reduce((maxTime: number, path: string) => {
-//        var stat = fs.statSync(path);
-//        if ( !stat ) {
-//            throw new Error("Could not stat " + path);
-//        }
-//        return Math.max(maxTime, stat.mtime);
-//    }, 0);
-//}
-//
-//// The JS files needed to run an individual test
-//var testJS = [
-//    "node_modules/chai/chai.js",
-//    "build/private/test-runner.js",
-//    "node_modules/watchjs/src/watch.js"
-//];
-//
-//// The library JS, served separately to make debugging easier
-//var goboJS = ["build/gobo.debug.js"];
-//
-///** Serves a javascript file */
-//function serveJS (cache: boolean, paths: string[]) {
-//    return (req, res) => {
-//        Q.all(
-//            paths.map(path => {
-//                return Q.nfcall(fs.readFile, path, "utf-8");
-//            })
-//        ).then(
-//            (content: string[]) => {
-//                if ( cache ) {
-//                    res.set("Content-Type", "application/javascript");
-//                    res.set("Cache-Control", "public, max-age=300");
-//                }
-//                content.forEach(data => {
-//                    res.write(data);
-//                    res.write("\n");
-//                });
-//                res.end();
-//            },
-//            (err) => {
-//                res.sendStatus(500);
-//                res.send(err);
-//            }
-//        );
-//    };
-//}
-//
-///** Serves a map of test suites */
-//function serveSuiteList (
-//    enableCache: boolean,
-//    res: any,
-//    suites: Test.SuiteSet
-//): void {
-//
-//    var autoinc = 0;
-//
-//    var suitePromise = Q.all( Object.keys(suites).map(suite => {
-//
-//        var testPromises = Object.keys(suites[suite]).map(test => {
-//            var bundle = suites[suite][test];
-//            var testId = ++autoinc;
-//            return getTestHTML(enableCache, bundle, testId).then(html => {
-//                return {
-//                    test: test,
-//                    url: "/" + encodeURIComponent(suite) +
-//                        "/" + encodeURIComponent(test),
-//                    content: html,
-//                    testId: testId
-//                };
-//            });
-//        });
-//
-//        return Q.all(testPromises).then(testList => {
-//            return {
-//                suite: suite,
-//                url: "/" + encodeURIComponent(suite),
-//                tests: testList
-//            };
-//        });
-//    }) );
-//
-//    readFile(res, "./tests/framework/listing.handlebars", (html) => {
-//        suitePromise.then(data => {
-//            var template = Handlebars.compile(html);
-//            res.set("Content-Type", "text/html");
-//            res.send( template({ suites: data }) );
-//        });
-//    });
-//}
 
 /** Response to a request with HTML */
 function serveHtml( res: express.Response, html: Q.Promise<string> ) {
