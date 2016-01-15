@@ -156,7 +156,7 @@ function render( file: string, data: any ): Q.Promise<string> {
 }
 
 /** Generates the full HTML needed to run a test */
-function renderTestHtml ( test: def.Test, id: number ): Q.Promise<string> {
+function renderTestHtml ( test: def.Test, id: number = 0 ): Q.Promise<string> {
     return render("test", {
         testId: id,
         stylize: id === 0,
@@ -234,6 +234,23 @@ export class Server {
             var suite = def.findSuite(this.suites, req.params.suite);
             if ( suite ) {
                 serveHtml(res, renderSuiteList([ suite ]));
+            }
+            else {
+                res.sendStatus(404);
+            }
+        });
+
+        // Serve an HTML file with a specific test
+        server.get("/:suite/:test", (req, res) => {
+            var suite = def.findSuite(this.suites, req.params.suite);
+            if ( suite ) {
+                var test = suite.findTest(req.params.test);
+                if ( test ) {
+                    serveHtml(res, renderTestHtml(test));
+                }
+                else {
+                    res.sendStatus(404);
+                }
             }
             else {
                 res.sendStatus(404);

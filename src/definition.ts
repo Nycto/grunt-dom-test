@@ -23,6 +23,16 @@ export class Test {
     ) {}
 }
 
+/** Finds an item with the given name among a list of named items */
+function find<T extends { name: string }>( list: T[], name: string ): T {
+    for (var item of list) {
+        if ( item.name === name ) {
+            return item;
+        }
+    }
+    return undefined;
+}
+
 /** A suite is a set of named tests */
 export class Suite {
 
@@ -46,15 +56,15 @@ export class Suite {
     allFiles(): string[] {
         return this.utilities.concat(this.files);
     }
+
+    /** Finds a test by name */
+    findTest( name: string ): Test {
+        return find(this.tests, name);
+    }
 };
 
 /** Finds the suite with the given name, or returns undefined */
 export function findSuite( suites: Suite[], name: string ): Suite {
-    for (var suite of suites) {
-        if ( suite.name === name ) {
-            return suite;
-        }
-    }
-    return undefined;
+    return find(suites, name);
 }
 
