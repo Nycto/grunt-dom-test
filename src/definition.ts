@@ -48,3 +48,13 @@ export class Suite {
     }
 };
 
+/** Finds the suite with the given name, or returns undefined */
+export function findSuite( suites: Suite[], name: string ): Suite {
+    for (var suite of suites) {
+        if ( suite.name === name ) {
+            return suite;
+        }
+    }
+    return undefined;
+}
+

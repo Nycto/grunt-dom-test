@@ -134,8 +134,22 @@ function readFile(
 //    });
 //}
 
-function render( template: string, data: any ): Q.Promise<string> {
-    var path = __dirname + "/tpl/" + template + ".handlebars";
+/** Response to a request with HTML */
+function serveHtml( res: express.Response, html: Q.Promise<string> ) {
+    html.then(content => {
+        res.set("Content-Type", "text/html");
+        res.send(content);
+
+    }).catch((err: Error) => {
+        console.error(err.stack);
+        res.status(500).send(err.stack.toString());
+
+    }).done();
+}
+
+/** Renders data into a named template */
+function render( file: string, data: any ): Q.Promise<string> {
+    var path = __dirname + "/tpl/" + file + ".handlebars";
     return Q.nfcall(fs.readFile, path, "utf-8")
         .then(Handlebars.compile)
         .then(template => { return template(data); });
@@ -152,6 +166,43 @@ function renderTestHtml ( test: def.Test, id: number ): Q.Promise<string> {
     });
 }
 
+/** Servers the list of test suites */
+function renderSuiteList ( suites: def.Suite[] ) {
+
+    var autoinc = 0;
+
+    // Collect a list of data about all the suites
+    return Q.all(suites.map(suite => {
+
+        // Render test HTML for each of the tests
+        var testHtml = Q.all(suite.tests.map(test => {
+            var id = ++autoinc;
+            return renderTestHtml(test, id).then(html => {
+                return {
+                    test: test.name,
+                    url: "/" + encodeURIComponent(suite.name) +
+                        "/" + encodeURIComponent(test.name),
+                    content: html,
+                    testId: id
+                };
+            });
+        }));
+
+        // Collect the test data into information about the suite
+        return testHtml.then(testList => {
+            return {
+                suite: suite.fullName(),
+                url: "/" + encodeURIComponent(suite.name),
+                tests: testList
+            };
+        });
+
+    })).then(suiteData => {
+        // Render the data into a template
+        return render("listing", { suites: suiteData });
+    });
+}
+
 /** Starts a local server that serves up test code */
 export class Server {
 
@@ -161,54 +212,6 @@ export class Server {
     /** Sets the test suites */
     setSuites( suites: def.Suite[] ) {
         this.suites = suites;
-    }
-
-    /** Servers the list of test suites */
-    private serveSuiteList ( req: express.Request, res: express.Response ) {
-
-        var autoinc = 0;
-
-        // Collect a list of data about all the suites
-        Q.all(this.suites.map(suite => {
-
-            // Render test HTML for each of the tests
-            var testHtml = Q.all(suite.tests.map(test => {
-                var id = ++autoinc;
-                return renderTestHtml(test, id).then(html => {
-                    return {
-                        test: test.name,
-                        url: "/" + encodeURIComponent(suite.name) +
-                            "/" + encodeURIComponent(test.name),
-                        content: html,
-                        testId: id
-                    };
-                });
-            }));
-
-            // Collect the test data into information about the suite
-            return testHtml.then(testList => {
-                return {
-                    suite: suite.fullName(),
-                    url: "/" + encodeURIComponent(suite.name),
-                    tests: testList
-                };
-            });
-
-        })).then(suiteData => {
-            // Render the data into a template
-            return render("listing", { suites: suiteData });
-
-        }).then(html => {
-            // Once rendered, send it ack to the client
-            res.set("Content-Type", "text/html");
-            res.send(html);
-
-        }).catch((err: Error) => {
-            // Handle any exceptions thrown
-            console.error(err.stack);
-            res.status(500).send(err.stack.toString());
-
-        }).done();
     }
 
     /** Start a new server */
@@ -222,7 +225,20 @@ export class Server {
         server.use( compression() );
 
         // At the root level, list out all of the tests
-        server.get("/", this.serveSuiteList.bind(this));
+        server.get("/", (req, res) => {
+            serveHtml(res, renderSuiteList(this.suites));
+        });
+
+        //Serve a single test suite
+        server.get("/:suite", (req, res) => {
+            var suite = def.findSuite(this.suites, req.params.suite);
+            if ( suite ) {
+                serveHtml(res, renderSuiteList([ suite ]));
+            }
+            else {
+                res.sendStatus(404);
+            }
+        });
 
         server.listen(8080, () => {
             deferred.resolve();
