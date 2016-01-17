@@ -74,7 +74,7 @@ export function toMocha ( suites: def.Suite[] ): Mocha {
     var root: any = new Mocha();
 
     suites.forEach(suite => {
-        var mochaSuite = new (<any> Mocha).Suite(suite.fullName());
+        var mochaSuite = new (<any> Mocha).Suite(suite.fullName() + "...");
         root.suite.addSuite(mochaSuite);
 
         suite.tests.forEach(test => {

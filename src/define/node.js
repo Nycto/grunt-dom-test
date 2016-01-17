@@ -1,5 +1,10 @@
+/* globals require, module */
+/* exported define */
+
 /** Transforms amd modules into commonjs modules */
 var define = (function () {
+    "use strict";
+
     var modules = {};
 
     return function ( name, depends, callback ) {

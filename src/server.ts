@@ -13,22 +13,6 @@ import compression = require("compression");
 import Handlebars = require("handlebars");
 
 
-/** Attempts to read a file, throwing an error if it fails */
-function readFile(
-    res: express.Response, path: string,
-    fn: (content: string) => void
-) {
-    fs.readFile(path, (err, content) => {
-        if (err) {
-            res.sendStatus(500);
-            res.send(err);
-        }
-        else {
-            fn(content.toString());
-        }
-    });
-}
-
 /** Response to a request with HTML */
 function serveHtml( res: express.Response, html: Q.Promise<string> ) {
     html.then(content => {
@@ -51,8 +35,13 @@ function render( file: string, data: any ): Q.Promise<string> {
 }
 
 /** Generates the full HTML needed to run a test */
-function renderTestHtml ( test: def.Test, id: number = 0 ): Q.Promise<string> {
+function renderTestHtml (
+    suite: def.Suite,
+    test: def.Test,
+    id: number = 0
+): Q.Promise<string> {
     return render("test", {
+        js: suite.allFiles(),
         testId: id,
         stylize: id === 0,
         html: test.html,
@@ -72,7 +61,7 @@ function renderSuiteList ( suites: def.Suite[] ) {
         // Render test HTML for each of the tests
         var testHtml = Q.all(suite.tests.map(test => {
             var id = ++autoinc;
-            return renderTestHtml(test, id).then(html => {
+            return renderTestHtml(suite, test, id).then(html => {
                 return {
                     test: test.name,
                     url: "/" + encodeURIComponent(suite.name) +
@@ -98,6 +87,33 @@ function renderSuiteList ( suites: def.Suite[] ) {
     });
 }
 
+/** Serves a list of javascript files */
+function serveJs (
+    res: express.Response, cache: boolean, paths: string[]
+) {
+    var contents = paths.map(path => {
+        return Q.nfcall(fs.readFile, path, "utf-8");
+    });
+
+    Q.all(contents).then(
+        (content: string[]) => {
+            if ( cache ) {
+                res.set("Content-Type", "application/javascript");
+                res.set("Cache-Control", "public, max-age=300");
+            }
+            content.forEach(data => {
+                res.write(data);
+                res.write("\n");
+            });
+            res.end();
+        },
+        (err) => {
+            res.status(500);
+            res.send(err);
+        }
+    );
+}
+
 /** Starts a local server that serves up test code */
 export class Server {
 
@@ -118,6 +134,27 @@ export class Server {
 
         // enable gzip compression
         server.use( compression() );
+
+        // Serve the test harness javascript
+        server.get("/js/harness.js", (req, res) => {
+            serveJs(res, false, [ __dirname + "/js/harness.js" ]);
+        });
+
+        // Serve the test harness javascript
+        server.get("/js/runner.js", (req, res) => {
+            serveJs(res, false, [ __dirname + "/js/runner.js" ]);
+        });
+
+        // Serve any other requested JS
+        server.get(/^\/js\/user\/(.+)$/, (req, res) => {
+            var path: string = req.params[0];
+            if ( !this.suites.some(s => { return s.isJsNeeded(path); }) ) {
+                res.sendStatus(403);
+            }
+            else {
+                serveJs(res, false, [ process.cwd() + "/" + path ]);
+            }
+        });
 
         // At the root level, list out all of the tests
         server.get("/", (req, res) => {
@@ -141,7 +178,7 @@ export class Server {
             if ( suite ) {
                 var test = suite.findTest(req.params.test);
                 if ( test ) {
-                    serveHtml(res, renderTestHtml(test));
+                    serveHtml(res, renderTestHtml(suite, test));
                 }
                 else {
                     res.sendStatus(404);

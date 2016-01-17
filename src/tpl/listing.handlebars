@@ -2,28 +2,43 @@
 <html>
     <head>
         <title>Tests</title>
+        <script src='/js/harness.js'></script>
         <style>
-        iframe {
-            width: 1px;
-            height: 1px;
-            position: absolute;
-            left: -500px;
-        }
-        .success:before {
-            content: "\2713 ";
-            color: green;
-        }
-        .failure:before {
-            content: "\2717 ";
-            color: red;
-        }
-        .error {
-            background: #fbe3e4;
-            color: #8a1f11;
-            border: 2px solid #fbc2c4;
-            padding: 0.8em;
-            margin: 5px 0;
-        }
+            iframe {
+                width: 1px;
+                height: 1px;
+                position: absolute;
+                left: -500px;
+            }
+            [test-report]:before {
+                content: " ";
+                text-decoration: none;
+                display: inline-block;
+            }
+            [test-report].success:before {
+                content: "\2713 ";
+                color: green;
+            }
+            [test-report].failure:before {
+                content: "\2717 ";
+                color: red;
+            }
+            [test-report].running:before {
+                animation: spin 3s linear infinite;
+                content: "\25CC ";
+                font-weight: bold;
+                color: #666;
+            }
+            @keyframes spin {
+                100% { transform: rotate(360deg); }
+            }
+            .error {
+                background: #fbe3e4;
+                color: #8a1f11;
+                border: 2px solid #fbc2c4;
+                padding: 0.8em;
+                margin: 5px 0;
+            }
         </style>
     </head>
     <body>
@@ -34,7 +49,7 @@
         <h1>Tests</h1>
         <ul>
             {{#each suites}}
-                <li><a href='{{url}}'>{{suite}}</a>
+                <li><a href='{{url}}'>{{suite}}...</a>
                     <ul>
                         {{#each tests}}
                             <li>
@@ -43,7 +58,7 @@
                                 </a>
                                 <script type='base64/html'
                                     test-case='{{testId}}'
-                                    test-name='{{../suite}}: {{test}}'
+                                    test-name='{{../suite}} {{test}}'
                                     test-url='{{url}}'>{{content}}
                                 </script>
                             </li>
@@ -52,5 +67,29 @@
                 </li>
             {{/each}}
         </ul>
+
+        <script>
+            Harness.start(
+                function onComplete (results) {
+                    window.global_test_results = results;
+                },
+                function onError (result, url) {
+                    var link = document.createElement("a");
+                    link.textContent = result.name;
+                    link.href = url;
+                    link.className = "failure";
+
+                    var message = document.createElement("div");
+                    message.textContent = result.message;
+                    message.className = "error";
+
+                    var container = document.createElement("li");
+                    container.appendChild(link);
+                    container.appendChild(message);
+
+                    document.getElementById("failures").appendChild(container);
+                }
+            );
+        </script>
     </body>
 </html>

@@ -6,9 +6,9 @@
  * Licensed under the MIT license.
  */
 
-'use strict';
-
+/* globals module */
 module.exports = function(grunt) {
+    "use strict";
 
     var tsOptions = {
         sourceMap: false,
@@ -40,17 +40,54 @@ module.exports = function(grunt) {
                 src: 'src/task.ts',
                 out: 'build/task.js',
                 options: tsOptions
+            },
+            harness: {
+                src: 'src/harness.ts',
+                out: 'tasks/js/harness.js',
+                options: tsOptions
+            },
+            runner: {
+                src: 'src/runner.ts',
+                out: 'build/runner.js',
+                options: tsOptions
             }
         },
 
         concat: {
             lib: {
-                src: [ 'src/define.js', 'build/lib.js' ],
+                src: [ 'src/define/node.js', 'build/lib.js' ],
                 dest: 'lib/grunt-dom-test.js',
             },
             tasks: {
-                src: [ 'src/define.js', 'build/task.js' ],
+                src: [ 'src/define/node.js', 'build/task.js' ],
                 dest: 'tasks/grunt-dom-test.js',
+            },
+            runner: {
+                src: [ 'src/define/browser.js', 'build/runner.js' ],
+                dest: 'tasks/js/runner.js',
+            }
+        },
+
+        jshint: {
+            files: ['Gruntfile.js', 'src/**/*.js'],
+            options: {
+                bitwise: true,
+                camelcase: true,
+                curly: true,
+                eqeqeq: true,
+                forin: true,
+                immed: true,
+                indent: 4,
+                latedef: true,
+                newcap: true,
+                noarg: true,
+                nonew: true,
+                noempty: true,
+                undef: true,
+                unused: true,
+                strict: true,
+                trailing: true,
+                maxlen: 80
             }
         },
 
@@ -64,8 +101,18 @@ module.exports = function(grunt) {
         },
 
         watch: {
-            files: ['src/**/*.ts', 'src/define.js', 'src/tpl/**'],
-            tasks: ['default']
+            ts: {
+                files: ['src/**/*.ts', 'src/define.js', 'src/tpl/**'],
+                tasks: ['default']
+            },
+            concat: {
+                files: ['src/**/*.js'],
+                tasks: ['js']
+            },
+            copy: {
+                files: ['src/tpl/**'],
+                tasks: ['copy']
+            }
         },
     });
 
@@ -73,10 +120,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-ts');
 
     // By default, lint and run all tests.
-    grunt.registerTask('default', ['tslint', 'ts', 'concat', 'copy']);
+    grunt.registerTask('default', ['tslint', 'ts', 'js', 'copy']);
+    grunt.registerTask('js', ['jshint', 'concat']);
 
 };

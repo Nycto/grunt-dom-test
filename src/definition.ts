@@ -49,12 +49,18 @@ export class Suite {
 
     /** Returns the full name for this test suite */
     fullName(): string {
-        return this.prefix + " " + this.name + " should...";
+        return this.prefix + " " + this.name + " should";
     }
 
     /** Returns the paths for all files needed by this suite */
     allFiles(): string[] {
         return this.utilities.concat(this.files);
+    }
+
+    /** Returns whether the given JS file is needed as part of this suite */
+    isJsNeeded ( path: string ) {
+        return this.files.some(js => { return js === path; }) ||
+            this.utilities.some(js => { return js === path; });
     }
 
     /** Finds a test by name */

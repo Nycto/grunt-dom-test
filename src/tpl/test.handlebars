@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src='/js/runner.js'></script>
+        {{#each js}}
+            <script src='/js/user/{{this}}'></script>
+        {{/each}}
         {{#stylize}}
             <style>
                 body.success:before {
@@ -25,7 +29,11 @@
     </head>
     <body>
         {{{html}}}
-        <script>Test.run({{testId}}, {{{logic}}});</script>
+        <script>
+            define(["runner"], function(runner) {
+                runner({{testId}}, {{{logic}}});
+            });
+        </script>
     </body>
 </html>
 
