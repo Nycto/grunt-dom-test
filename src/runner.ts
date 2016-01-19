@@ -58,6 +58,6 @@ export = function run ( testId: number, logic: TestCase ) {
     setTimeout(() => { done(false, "Test Timeout"); }, 500);
 
     // Run the test
-    logic(() => { done(true, "Passed"); }, new dom.Doc(window, document));
+    logic(() => { done(true, "Passed"); }, new dom.Doc(window));
 }
 
