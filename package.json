@@ -20,7 +20,7 @@
     "node": "5.0.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt"
   },
   "devDependencies": {
     "compression": "^1.6.0",
