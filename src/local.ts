@@ -39,7 +39,7 @@ function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
         // errors ourself
         var virtualConsole = (<any> jsdom).createVirtualConsole()
             .sendTo(console, { omitJsdomErrors: true });
-        virtualConsole.on("jsdomError", done);
+        virtualConsole.on("jsdomError", (err) => { done(err); });
 
         // Create the jsdom environment
         var doc = jsdom.jsdom(test.html, {
@@ -67,7 +67,7 @@ function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
                 }
                 test.fn(() => { done(); }, doc);
             })
-            .catch(done)
+            .catch(err => { done(err); })
             .finally(() => { window.close(); })
             .done();
     });
