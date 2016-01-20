@@ -116,7 +116,7 @@ class QueryResult {
 
     /** Asserts a single result and returns it */
     one(): Elem {
-        if ( this.length !== 0 ) {
+        if ( this.length !== 1 ) {
             throw new Error(
                 "Expected only one result, but found " + this.length
             );
