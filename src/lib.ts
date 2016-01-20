@@ -3,6 +3,7 @@
  */
 
 import def = require("./definition");
+import dom = require("./dom");
 
 var suites: def.Suite[] = [];
 
@@ -41,6 +42,12 @@ class SuiteBuilder {
     constructor ( suitePrefix: string, suiteTitle: string ) {
         this.suite = new def.Suite(suitePrefix, suiteTitle);
         suites.push(this.suite);
+    }
+
+    /** A function to run before running a test */
+    setup ( fn: (doc: dom.Doc) => void ): this {
+        this.suite.setup = fn;
+        return this;
     }
 
     /** Loads an individual file */

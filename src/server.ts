@@ -45,6 +45,7 @@ function renderTestHtml (
         testId: id,
         stylize: id === 0,
         html: test.html,
+        setup: suite.setup ? suite.setup.toString() : "null",
         logic: test.fn.toString(),
         jsHash: "-"
     });

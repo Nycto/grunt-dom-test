@@ -45,6 +45,9 @@ export class Suite {
     /** Tests in this suite */
     tests: Test[] = [];
 
+    /** A function that is executed before each test */
+    setup: (doc: dom.Doc) => void = null;
+
     constructor( public prefix: string, public name: string ) {}
 
     /** Returns the full name for this test suite */

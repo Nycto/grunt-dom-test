@@ -60,7 +60,13 @@ function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
 
         // Once the scripts are added, execute the test
         Q.all(scripts)
-            .then(() => { test.fn(done, new dom.Doc(window)); })
+            .then(() => {
+                var doc = new dom.Doc(window);
+                if ( suite.setup ) {
+                    suite.setup(doc);
+                }
+                test.fn(() => { done(); }, doc);
+            })
             .catch(done)
             .finally(() => { window.close(); })
             .done();

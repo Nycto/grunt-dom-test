@@ -1,10 +1,13 @@
 import dom = require("./dom");
 
+/** Executed before the test is run */
+type TestSetup = ( $: dom.Doc ) => void;
+
 /** The logic for running a test */
 type TestCase = ( done: () => void, $: dom.Doc ) => void;
 
 /** Runs a test */
-export = function run ( testId: number, logic: TestCase ) {
+export = function run ( testId: number, setup: TestSetup, logic: TestCase ) {
 
     /** Reports a result back up the chain */
     function report ( result: boolean, message: string ) {
@@ -57,7 +60,13 @@ export = function run ( testId: number, logic: TestCase ) {
     // 500ms timeout for running the test
     setTimeout(() => { done(false, "Test Timeout"); }, 500);
 
+    var doc = new dom.Doc(window);
+
+    if ( setup ) {
+        setup(doc);
+    }
+
     // Run the test
-    logic(() => { done(true, "Passed"); }, new dom.Doc(window));
+    logic(() => { done(true, "Passed"); }, doc);
 }
 
