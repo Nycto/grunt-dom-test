@@ -16,9 +16,6 @@
     "url": "https://github.com/Nycto/grunt-dom-test/issues"
   },
   "license": "MIT",
-  "engines": {
-    "node": "5.0.0"
-  },
   "scripts": {
     "test": "grunt"
   },
