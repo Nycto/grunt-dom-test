@@ -118,18 +118,12 @@ function serveJs (
 /** Starts a local server that serves up test code */
 export class Server {
 
-    /** The list of test suites */
-    private suites: def.Suite[] = [];
+    constructor( private getSuites: () => def.Suite[] ) {}
 
-    /** Sets the test suites */
-    setSuites( suites: def.Suite[] ) {
-        this.suites = suites;
-    }
+    /** Start a new server, returning a URL at which it can be accessed */
+    start(): Q.Promise<string> {
 
-    /** Start a new server */
-    start(): Q.Promise<void> {
-
-        var deferred = Q.defer<void>();
+        var deferred = Q.defer<string>();
 
         var server = express();
 
@@ -149,7 +143,7 @@ export class Server {
         // Serve any other requested JS
         server.get(/^\/js\/user\/(.+)$/, (req, res) => {
             var path: string = req.params[0];
-            if ( !this.suites.some(s => { return s.isJsNeeded(path); }) ) {
+            if ( !this.getSuites().some(s => { return s.isJsNeeded(path); }) ) {
                 res.sendStatus(403);
             }
             else {
@@ -159,12 +153,12 @@ export class Server {
 
         // At the root level, list out all of the tests
         server.get("/", (req, res) => {
-            serveHtml(res, renderSuiteList(this.suites));
+            serveHtml(res, renderSuiteList(this.getSuites()));
         });
 
         //Serve a single test suite
         server.get("/:suite", (req, res) => {
-            var suite = def.findSuite(this.suites, req.params.suite);
+            var suite = def.findSuite(this.getSuites(), req.params.suite);
             if ( suite ) {
                 serveHtml(res, renderSuiteList([ suite ]));
             }
@@ -175,7 +169,7 @@ export class Server {
 
         // Serve an HTML file with a specific test
         server.get("/:suite/:test", (req, res) => {
-            var suite = def.findSuite(this.suites, req.params.suite);
+            var suite = def.findSuite(this.getSuites(), req.params.suite);
             if ( suite ) {
                 var test = suite.findTest(req.params.test);
                 if ( test ) {
@@ -191,7 +185,7 @@ export class Server {
         });
 
         server.listen(8080, () => {
-            deferred.resolve();
+            deferred.resolve("http://localhost:8080");
         });
 
         return deferred.promise;

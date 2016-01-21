@@ -18,57 +18,66 @@ class Options {
             this.grunt.config.get<string[]>(this.name + ".files")
         );
     }
-
-    /** Returns the list of suites defined by the consuming package */
-    suites(): def.Suite[] {
-        var domTest = require("../lib/grunt-dom-test.js").__private;
-
-        domTest.clear();
-
-        this.files().forEach(file => {
-            var path = process.cwd() + "/" + file;
-            delete (<any> require).cache[path];
-            require(path);
-        });
-
-        return domTest.suites();
-    }
 }
+
 
 /** Primary entry point for the grunt task */
 export = function ( grunt: IGrunt ) {
 
     const opts = new Options("domTest", grunt);
 
-    // Will be assigned the server instance the first time the task runs
-    var httpServer;
+    /** Returns a list of suites */
+    function suites(): def.Suite[] {
+
+        var lib = require("../lib/grunt-dom-test.js").__private;
+
+        lib.clear();
+
+        opts.files().forEach(file => {
+            var path = process.cwd() + "/" + file;
+            delete (<any> require).cache[path];
+            require(path);
+        });
+
+        return lib.suites();
+    }
 
     grunt.registerTask(
-        opts.name,
-        "Executes unit tests both locally and in browsers",
+        opts.name + ":server",
+        "Starts a server to run tests in browser",
         function () {
 
             // Typescript has no way of defining the type for `this`, so
             // we need to rebind and do some casting.
             var self = <grunt.task.ITask> this;
 
+            var done = this.async();
+
             // Start the server if it hasn't been spun up yet
-            if ( !httpServer ) {
-                httpServer = new server.Server();
-                httpServer.start().then(() => {
-                    grunt.log.subhead("Server started");
-                    grunt.log.writeln("");
-                });
-            }
+            var httpServer = new server.Server( suites );
+
+            httpServer.start().then((url) => {
+                grunt.log.subhead("Server started: " + url);
+                grunt.log.writeln("");
+                done();
+            }).catch(err => {
+                done(err);
+            });
+        }
+    );
+
+    grunt.registerTask(
+        opts.name + ":test",
+        "Executes unit tests in Node with jsdom",
+        function () {
+
+            // Typescript has no way of defining the type for `this`, so
+            // we need to rebind and do some casting.
+            var self = <grunt.task.ITask> this;
 
             var done = self.async();
 
-            var suites = opts.suites();
-
-            // Update the http server with the new list of tests
-            httpServer.setSuites( suites );
-
-            local.toMocha(suites).run((failures: number) => {
+            local.toMocha( suites() ).run((failures: number) => {
                 done(failures === 0);
             });
         }
