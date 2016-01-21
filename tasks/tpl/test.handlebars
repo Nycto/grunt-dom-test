@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src='/js/runner.js'></script>
+        {{#each js}}
+            <script src='/js/user/{{this}}'></script>
+        {{/each}}
+        {{#stylize}}
+            <style>
+                body.success:before {
+                    background: #e6efc2;
+                    color: #264409;
+                    content: "Test Passed";
+                }
+
+                .failure {
+                    background: #fbe3e4;
+                    color: #8a1f11;
+                }
+
+                body.success:before,
+                .failure {
+                    display: block;
+                    padding: 0.8em;
+                    margin-bottom: 0.8em;
+                }
+            </style>
+        {{/stylize}}
+    </head>
+    <body>
+        {{{html}}}
+        <script>
+            define(["runner"], function(runner) {
+                runner({{testId}}, {{{setup}}}, {{{logic}}});
+            });
+        </script>
+    </body>
+</html>
+
