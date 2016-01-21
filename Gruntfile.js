@@ -114,6 +114,8 @@ module.exports = function(grunt) {
                 tasks: ['copy']
             }
         },
+
+        clean: [ "build", "tasks", "lib", "etc", "dest" ]
     });
 
     // These plugins provide necessary tasks.
@@ -121,6 +123,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-ts');
 
