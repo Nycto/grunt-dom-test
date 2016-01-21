@@ -1,7 +1,6 @@
 .npmignore
 .travis.yml
 .tscache
-Gruntfile.js
 LICENSE.md
 build
 node_modules
