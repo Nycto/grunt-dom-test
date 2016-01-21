@@ -31,6 +31,20 @@ function addScript( doc: Document, path: string ): Q.Promise<void> {
     return deferred.promise;
 }
 
+/**
+ * Mocha is struggling with 'AssertionErrors' thrown by Chai. Converting them
+ * over to regular error objects seems just the ticket.
+ */
+function convertAssertion ( err: any ): Error {
+    var converted = new Error();
+    ["message", "showDiff", "actual", "expected", "stack"].forEach(key => {
+        if ( err.hasOwnProperty(key) ) {
+            converted[key] = err[key];
+        }
+    });
+    return converted;
+}
+
 /** Wraps a test in a jsdom document */
 function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
     return new (<any> Mocha).Test(test.name, (done: MochaDone) => {
@@ -67,7 +81,9 @@ function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
                 }
                 test.fn(() => { done(); }, doc);
             })
-            .catch(err => { done(err); })
+            .catch(err => {
+                done(err instanceof Error ? err : convertAssertion(err));
+            })
             .finally(() => { window.close(); })
             .done();
     });
