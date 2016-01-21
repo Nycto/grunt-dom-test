@@ -7,3 +7,4 @@ lib
 .baseDir.ts
 *.js
 tscommand-*.tmp.txt
+build

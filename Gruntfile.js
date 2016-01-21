@@ -33,38 +33,38 @@ module.exports = function(grunt) {
         ts: {
             lib: {
                 src: 'src/lib.ts',
-                out: 'build/lib.js',
+                out: 'build/tmp/lib.js',
                 options: tsOptions
             },
             tasks: {
                 src: 'src/task.ts',
-                out: 'build/task.js',
+                out: 'build/tmp/task.js',
                 options: tsOptions
             },
             harness: {
                 src: 'src/harness.ts',
-                out: 'tasks/js/harness.js',
+                out: 'build/tasks/js/harness.js',
                 options: tsOptions
             },
             runner: {
                 src: 'src/runner.ts',
-                out: 'build/runner.js',
+                out: 'build/tmp/runner.js',
                 options: tsOptions
             }
         },
 
         concat: {
             lib: {
-                src: [ 'src/define/node.js', 'build/lib.js' ],
-                dest: 'lib/grunt-dom-test.js',
+                src: [ 'src/define/node.js', 'build/tmp/lib.js' ],
+                dest: 'build/lib/grunt-dom-test.js',
             },
             tasks: {
-                src: [ 'src/define/node.js', 'build/task.js' ],
-                dest: 'tasks/grunt-dom-test.js',
+                src: [ 'src/define/node.js', 'build/tmp/task.js' ],
+                dest: 'build/tasks/grunt-dom-test.js',
             },
             runner: {
-                src: [ 'src/define/browser.js', 'build/runner.js' ],
-                dest: 'tasks/js/runner.js',
+                src: [ 'src/define/browser.js', 'build/tmp/runner.js' ],
+                dest: 'build/tasks/js/runner.js',
             }
         },
 
@@ -96,22 +96,40 @@ module.exports = function(grunt) {
                 expand: true,
                 cwd: 'src/',
                 src: 'tpl/**',
-                dest: 'tasks/'
+                dest: 'build/tasks/'
+            },
+
+            pkgjson: {
+                expand: true,
+                cwd: '.',
+                src: 'package.json',
+                dest: 'build/'
+            },
+
+            final: {
+                expand: true,
+                cwd: 'build/',
+                src: [ 'lib/**/*', 'tasks/**/*' ],
+                dest: '.'
             }
         },
 
         watch: {
             ts: {
-                files: ['src/**/*.ts', 'src/define.js', 'src/tpl/**'],
+                files: ['src/**/*.ts'],
                 tasks: ['default']
             },
             concat: {
                 files: ['src/**/*.js'],
-                tasks: ['js']
+                tasks: ['js', 'copy:final']
             },
             copy: {
                 files: ['src/tpl/**'],
-                tasks: ['copy']
+                tasks: ['copy:tpls']
+            },
+            pkgjson: {
+                files: ['package.json'],
+                tasks: ['copy:pkgjson']
             }
         },
 
