@@ -79,6 +79,7 @@ function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
                 if ( suite.setup ) {
                     suite.setup(doc);
                 }
+
                 test.fn(() => { done(); }, doc);
             })
             .catch(err => {

@@ -4,22 +4,17 @@
 
 /// <reference path="../typings/node/node.d.ts"/>
 
+import test = require("./test");
 import dom = require("./dom");
 
 import fs = require("fs");
-
-/** A callback used by the test to indicate it is completed */
-export type Done = () => void;
-
-/** The user defined test */
-export type TestCallback = (done: Done, $: dom.Doc) => void;
 
 /** Bundled data about a test */
 export class Test {
     constructor (
         public name: string,
         public html: string,
-        public fn: TestCallback
+        public fn: test.Logic
     ) {}
 }
 
@@ -46,7 +41,7 @@ export class Suite {
     tests: Test[] = [];
 
     /** A function that is executed before each test */
-    setup: (doc: dom.Doc) => void = null;
+    setup: test.Setup = null;
 
     constructor( public prefix: string, public name: string ) {}
 

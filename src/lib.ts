@@ -4,6 +4,7 @@
 
 import def = require("./definition");
 import dom = require("./dom");
+import test = require("./test");
 
 var suites: def.Suite[] = [];
 
@@ -16,7 +17,7 @@ class TestBuilder {
     ) {}
 
     /** Sets the test function */
-    in(test: def.TestCallback): SuiteBuilder {
+    in(test: test.Logic): SuiteBuilder {
         return this.built( new def.Test(this.title, this.html, test) );
     }
 }
@@ -45,7 +46,7 @@ class SuiteBuilder {
     }
 
     /** A function to run before running a test */
-    setup ( fn: (doc: dom.Doc) => void ): this {
+    setup ( fn: test.Setup ): this {
         this.suite.setup = fn;
         return this;
     }

@@ -1,13 +1,8 @@
 import dom = require("./dom");
-
-/** Executed before the test is run */
-type TestSetup = ( $: dom.Doc ) => void;
-
-/** The logic for running a test */
-type TestCase = ( done: () => void, $: dom.Doc ) => void;
+import test = require("./test");
 
 /** Runs a test */
-export = function run ( testId: number, setup: TestSetup, logic: TestCase ) {
+export = function run (testId: number, setup: test.Setup, logic: test.Logic) {
 
     /** Reports a result back up the chain */
     function report ( result: boolean, message: string ) {
