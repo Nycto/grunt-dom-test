@@ -142,6 +142,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-continue');
     grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-ts');
 
@@ -149,4 +150,5 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['tslint', 'ts', 'js', 'copy']);
     grunt.registerTask('js', ['jshint', 'concat']);
 
+    grunt.registerTask('dev', ['continue:on', 'default', 'watch']);
 };
