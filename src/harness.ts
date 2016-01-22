@@ -92,6 +92,24 @@ module Harness {
             private onComplete: (result: SuiteResult) => void
         ) {}
 
+        /** Returns a break down of the tests that ran */
+        private breakdown( duration: int ): NormalTestResult[] {
+            var breakdown = this.tests.filter(test => {
+                return test.result === Result.Fail;
+            }).map(normalize);
+
+            if ( breakdown.length === 0 ) {
+                breakdown = [ {
+                    name: "All Tests",
+                    result: true,
+                    message: "All Tests Passed",
+                    duration: duration
+                } ];
+            }
+
+            return breakdown;
+        }
+
         /** Adds a result */
         report( result: TestResult ): void {
             this.tests.push(result);
@@ -103,14 +121,14 @@ module Harness {
             }
 
             if ( this.passed + this.failed === this.total ) {
+                var duration = Date.now() - this.created;
+
                 this.onComplete({
                     passed: this.passed,
                     failed: this.failed,
                     total: this.total,
-                    duration: Date.now() - this.created,
-                    tests: this.tests.filter(test => {
-                        return test.result === Result.Fail;
-                    }).map(normalize)
+                    duration: duration,
+                    tests: this.breakdown(duration)
                 });
             }
         }
