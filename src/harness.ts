@@ -93,7 +93,7 @@ module Harness {
         ) {}
 
         /** Returns a break down of the tests that ran */
-        private breakdown( duration: int ): NormalTestResult[] {
+        private breakdown( duration: number ): NormalTestResult[] {
             var breakdown = this.tests.filter(test => {
                 return test.result === Result.Fail;
             }).map(normalize);
