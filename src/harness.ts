@@ -34,8 +34,28 @@ module Harness {
     }());
 
 
-    /** The result of a test pass */
+    /** The resulting status of a test */
+    enum Result { Pass, Fail, Skipped };
+
+    /** The result of a test run that either passed or failed */
     interface TestResult {
+        name: string;
+        result: Result;
+        message: string;
+        duration: number;
+    }
+
+    function normalize( result: TestResult ): NormalTestResult {
+        return {
+            name: result.name,
+            result: !!(result.result !== Result.Fail),
+            message: result.message,
+            duration: result.duration
+        };
+    }
+
+    /** Normalized test results operate in terms of pass/fail only */
+    interface NormalTestResult {
         name: string;
         result: boolean;
         message: string;
@@ -48,7 +68,7 @@ module Harness {
         failed: number;
         total: number;
         duration: number;
-        tests: TestResult[];
+        tests: NormalTestResult[];
     }
 
     /** Builds a result object */
@@ -75,11 +95,11 @@ module Harness {
         /** Adds a result */
         report( result: TestResult ): void {
             this.tests.push(result);
-            if ( result.result ) {
-                this.passed++;
+            if ( result.result === Result.Fail ) {
+                this.failed++;
             }
             else {
-                this.failed++;
+                this.passed++;
             }
 
             if ( this.passed + this.failed === this.total ) {
@@ -89,8 +109,8 @@ module Harness {
                     total: this.total,
                     duration: Date.now() - this.created,
                     tests: this.tests.filter(test => {
-                        return !test.result;
-                    })
+                        return test.result === Result.Fail;
+                    }).map(normalize)
                 });
             }
         }
@@ -101,6 +121,11 @@ module Harness {
 
         /** @constructor */
         constructor ( private elem: HTMLElement ) {}
+
+        /** Returns whether this test should be skipped */
+        skip(): boolean {
+            return this.elem.hasAttribute("test-skip");
+        }
 
         /** Returns the URL for loading this specific test on its own */
         url(): string {
@@ -146,9 +171,17 @@ module Harness {
 
             var report = this.reportElem();
             report.className = report.className.replace(/\brunning\b/, "");
-            report.className += outcome.result ? " success" : " failure";
+            if ( outcome.result === Result.Pass ) {
+                report.className += " success";
+            }
+            else if ( outcome.result === Result.Fail ) {
+                report.className += " failure";
+            }
+            else {
+                report.className += " skipped";
+            }
 
-            if ( !outcome.result && outcome.message ) {
+            if ( outcome.result === Result.Fail && outcome.message ) {
                 var error = document.createElement("div");
                 error.classList.add("error");
                 error.textContent = outcome.message;
@@ -219,7 +252,7 @@ module Harness {
             var done = false;
 
             /** Reports on the results of this test */
-            function report( passed: boolean, message: string ) {
+            function report( passed: Result, message: string ) {
 
                 if ( done ) {
                     return;
@@ -237,7 +270,7 @@ module Harness {
                 test.report(result);
                 results.report(result);
 
-                if ( !result.result ) {
+                if ( result.result === Result.Fail ) {
                     onFailure(result, test.url());
                 }
 
@@ -245,9 +278,17 @@ module Harness {
                 next();
             }
 
+            if ( test.skip() ) {
+                report(Result.Skipped, "Skipped");
+                return;
+            }
+
             // Add a subscriber to listen for the test to finish
             Messages.subscribe(test.id(), data => {
-                report(!!data.result, data.message ? data.message : "");
+                report(
+                    data.result ? Result.Pass : Result.Fail,
+                    data.message ? data.message : ""
+                );
             });
 
             // Run the test and report an error if it fails to load

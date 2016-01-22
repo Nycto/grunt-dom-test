@@ -68,7 +68,8 @@ function renderSuiteList ( suites: def.Suite[] ) {
                     url: "/" + encodeURIComponent(suite.name) +
                         "/" + encodeURIComponent(test.name),
                     content: html,
-                    testId: id
+                    testId: id,
+                    skip: test.skip
                 };
             });
         }));

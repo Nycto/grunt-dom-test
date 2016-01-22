@@ -47,6 +47,11 @@ function convertAssertion ( err: any ): Error {
 
 /** Wraps a test in a jsdom document */
 function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
+
+    if ( test.skip ) {
+        return new (<any> Mocha).Test(test.name);
+    }
+
     return new (<any> Mocha).Test(test.name, (done: MochaDone) => {
 
         // Redirect calls to console.* to the node instance, but handle

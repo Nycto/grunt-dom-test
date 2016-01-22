@@ -14,7 +14,8 @@ export class Test {
     constructor (
         public name: string,
         public html: string,
-        public fn: test.Logic
+        public fn: test.Logic,
+        public skip: boolean
     ) {}
 }
 

@@ -18,7 +18,12 @@ class TestBuilder {
 
     /** Sets the test function */
     in(test: test.Logic): SuiteBuilder {
-        return this.built( new def.Test(this.title, this.html, test) );
+        return this.built( new def.Test(this.title, this.html, test, false) );
+    }
+
+    /** Sets the test function, but marks the test for skipping */
+    skip(test: test.Logic): SuiteBuilder {
+        return this.built( new def.Test(this.title, this.html, test, true) );
     }
 }
 
