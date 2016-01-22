@@ -125,7 +125,7 @@ module.exports = function(grunt) {
             },
             copy: {
                 files: ['src/tpl/**'],
-                tasks: ['copy:tpls']
+                tasks: ['copy:tpls', 'copy:final']
             },
             pkgjson: {
                 files: ['package.json'],
