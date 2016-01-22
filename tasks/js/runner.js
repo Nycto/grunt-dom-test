@@ -249,6 +249,9 @@ define("dom", ["require", "exports"], function (require, exports) {
     }());
     exports.Doc = Doc;
 });
+define("test", ["require", "exports"], function (require, exports) {
+    "use strict";
+});
 define("runner", ["require", "exports", "dom"], function (require, exports, dom) {
     "use strict";
     return function run(testId, setup, logic) {

@@ -148,13 +148,17 @@ define("dom", ["require", "exports"], function (require, exports) {
     }());
     exports.Doc = Doc;
 });
+define("test", ["require", "exports"], function (require, exports) {
+    "use strict";
+});
 define("definition", ["require", "exports"], function (require, exports) {
     "use strict";
     var Test = (function () {
-        function Test(name, html, fn) {
+        function Test(name, html, fn, skip) {
             this.name = name;
             this.html = html;
             this.fn = fn;
+            this.skip = skip;
         }
         return Test;
     }());
@@ -225,6 +229,9 @@ define("local", ["require", "exports", "dom", "jsdom", "mocha", "q"], function (
         return converted;
     }
     function buildTest(suite, test) {
+        if (test.skip) {
+            return new Mocha.Test(test.name);
+        }
         return new Mocha.Test(test.name, function (done) {
             var virtualConsole = jsdom.createVirtualConsole()
                 .sendTo(console, { omitJsdomErrors: true });
@@ -309,7 +316,8 @@ define("server", ["require", "exports", "definition", "q", "fs", "express", "com
                         url: "/" + encodeURIComponent(suite.name) +
                             "/" + encodeURIComponent(test.name),
                         content: html,
-                        testId: id
+                        testId: id,
+                        skip: test.skip
                     };
                 });
             }));

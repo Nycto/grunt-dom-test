@@ -19,6 +19,21 @@ var Harness;
             return str.replace(regex, escapeCallback);
         };
     }());
+    var Result;
+    (function (Result) {
+        Result[Result["Pass"] = 0] = "Pass";
+        Result[Result["Fail"] = 1] = "Fail";
+        Result[Result["Skipped"] = 2] = "Skipped";
+    })(Result || (Result = {}));
+    ;
+    function normalize(result) {
+        return {
+            name: result.name,
+            result: !!(result.result !== Result.Fail),
+            message: result.message,
+            duration: result.duration
+        };
+    }
     var ResultBuilder = (function () {
         function ResultBuilder(total, onComplete) {
             this.total = total;
@@ -28,23 +43,36 @@ var Harness;
             this.failed = 0;
             this.tests = [];
         }
+        ResultBuilder.prototype.breakdown = function (duration) {
+            var breakdown = this.tests.filter(function (test) {
+                return test.result === Result.Fail;
+            }).map(normalize);
+            if (breakdown.length === 0) {
+                breakdown = [{
+                        name: "All Tests",
+                        result: true,
+                        message: "All Tests Passed",
+                        duration: duration
+                    }];
+            }
+            return breakdown;
+        };
         ResultBuilder.prototype.report = function (result) {
             this.tests.push(result);
-            if (result.result) {
-                this.passed++;
-            }
-            else {
+            if (result.result === Result.Fail) {
                 this.failed++;
             }
+            else {
+                this.passed++;
+            }
             if (this.passed + this.failed === this.total) {
+                var duration = Date.now() - this.created;
                 this.onComplete({
                     passed: this.passed,
                     failed: this.failed,
                     total: this.total,
-                    duration: Date.now() - this.created,
-                    tests: this.tests.filter(function (test) {
-                        return !test.result;
-                    })
+                    duration: duration,
+                    tests: this.breakdown(duration)
                 });
             }
         };
@@ -54,6 +82,9 @@ var Harness;
         function TestCase(elem) {
             this.elem = elem;
         }
+        TestCase.prototype.skip = function () {
+            return this.elem.hasAttribute("test-skip");
+        };
         TestCase.prototype.url = function () {
             return this.elem.getAttribute("test-url");
         };
@@ -79,8 +110,16 @@ var Harness;
         TestCase.prototype.report = function (outcome) {
             var report = this.reportElem();
             report.className = report.className.replace(/\brunning\b/, "");
-            report.className += outcome.result ? " success" : " failure";
-            if (!outcome.result && outcome.message) {
+            if (outcome.result === Result.Pass) {
+                report.className += " success";
+            }
+            else if (outcome.result === Result.Fail) {
+                report.className += " failure";
+            }
+            else {
+                report.className += " skipped";
+            }
+            if (outcome.result === Result.Fail && outcome.message) {
                 var error = document.createElement("div");
                 error.classList.add("error");
                 error.textContent = outcome.message;
@@ -138,13 +177,17 @@ var Harness;
                 };
                 test.report(result);
                 results.report(result);
-                if (!result.result) {
+                if (result.result === Result.Fail) {
                     onFailure(result, test.url());
                 }
                 next();
             }
+            if (test.skip()) {
+                report(Result.Skipped, "Skipped");
+                return;
+            }
             Messages.subscribe(test.id(), function (data) {
-                report(!!data.result, data.message ? data.message : "");
+                report(data.result ? Result.Pass : Result.Fail, data.message ? data.message : "");
             });
             test.run();
             setTimeout(report.bind(null, false, "Timeout"), 5000);

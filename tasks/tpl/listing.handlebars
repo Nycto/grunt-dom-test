@@ -23,6 +23,10 @@
                 content: "\2717 ";
                 color: red;
             }
+            [test-report].skipped:before {
+                content: "\2012 ";
+                color: #0AF;
+            }
             [test-report].running:before {
                 animation: spin 3s linear infinite;
                 content: "\25CC ";
@@ -57,6 +61,7 @@
                                     {{test}}
                                 </a>
                                 <script type='base64/html'
+                                    {{#skip}}test-skip{{/skip}}
                                     test-case='{{testId}}'
                                     test-name='{{../suite}} {{test}}'
                                     test-url='{{url}}'>{{content}}
