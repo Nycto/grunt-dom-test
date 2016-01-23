@@ -11,19 +11,29 @@ function name(fn: Function): string {
     }
 }
 
+/** A custom version of window to add missing declarations */
+interface CustomWindow extends Window {
+    HTMLElement: HTMLElement;
+    HTMLInputElement: HTMLInputElement;
+}
+
 /** A single dom element */
 class Elem {
 
     /** The document that owns this node */
     doc: Document;
 
+    /** The window object */
+    win: CustomWindow;
+
     /** The html element being wrapped */
     constructor (public elem: Node) {
         this.doc = this.elem.ownerDocument;
+        this.win = <CustomWindow> this.doc.defaultView;
     }
 
     /** Converts the element to the given type */
-    private as<T> ( typename: Function ): T {
+    private as<T> ( typename: any ): T {
         if ( this.elem instanceof typename ) {
             return <any> this.elem;
         }
@@ -50,10 +60,15 @@ class Elem {
         this.elem.dispatchEvent(clickevent);
     }
 
+    /** Returns the calculated CSS styles */
+    public styles(): CSSStyleDeclaration {
+        var elem = this.as<HTMLElement>(this.win.HTMLElement);
+        return this.win.getComputedStyle(elem);
+    }
+
     /** Returns whether an element is visible */
     public isVisible (): boolean {
-        var elem = this.as<HTMLElement>(HTMLElement);
-        return elem.style.display !== "none";
+        return this.styles().display !== "none";
     }
 
     /** Triggers a 'keyup' event */
@@ -83,7 +98,7 @@ class Elem {
 
     /** Simulates typing into a field */
     public typeInto ( value: string ): void {
-        var input = this.as<HTMLInputElement>(HTMLInputElement);
+        var input = this.as<HTMLInputElement>(this.win.HTMLInputElement);
         input.value = value;
         var event = this.doc.createEvent("UIEvent");
         event.initEvent("input", true, true);
@@ -92,7 +107,7 @@ class Elem {
 
     /** Changes the state of a checkbox */
     public setCheckbox ( checked: boolean ): void {
-        var input = this.as<HTMLInputElement>(HTMLInputElement);
+        var input = this.as<HTMLInputElement>(this.win.HTMLInputElement);
         input.checked = checked;
         var event = this.doc.createEvent("HTMLEvents");
         event.initEvent("change", false, true);
@@ -153,10 +168,10 @@ export class Doc {
     public doc: Document;
 
     /** The window */
-    public win: Window;
+    public win: CustomWindow;
 
     constructor ( public window: Window ) {
-        this.win = window;
+        this.win = <CustomWindow> window;
         this.document = window.document;
         this.doc = window.document;
         this.body = new Elem(this.document.body);
