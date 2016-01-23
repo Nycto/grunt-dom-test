@@ -75,6 +75,15 @@ class SuiteBuilder {
             return this;
         });
     }
+
+    /** Starts a new suite */
+    and ( suiteTitle: string ): SuiteBuilder {
+        var builder = new SuiteBuilder( "", suiteTitle );
+        builder.setup( this.suite.setup );
+        this.suite.files.forEach(file => { builder.withFile(file); });
+        this.suite.utilities.forEach(util => { builder.withUtility(util); });
+        return builder;
+    }
 }
 
 /** Creates a function that starts creating a new suite */
