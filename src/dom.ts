@@ -71,19 +71,27 @@ class Elem {
         return this.styles().display !== "none";
     }
 
-    /** Triggers a 'keyup' event */
-    public keyup ( keyCode: number ): void {
+    /** Triggers a keyboard based event */
+    private keyEvent ( eventType: string, keyCode: number ): void {
         var event = this.doc.createEvent("KeyboardEvent");
 
-        var init = (<any> event).initKeyboardEvent ||
-            (<any> event).initKeyEvent ||
-            (<any> event).initEvent;
-
-        init.call(event,
-            "keyup", true, true, null,
-            false, false, false, false,
-            keyCode, keyCode
-        );
+        if ( (<any> event).initKeyEvent ) {
+            (<any> event).initKeyEvent(
+                eventType, true, true, null,
+                false, false, false, false,
+                keyCode, keyCode
+            );
+        }
+        else if ( (<any> event).initKeyboardEvent ) {
+            (<any> event).initKeyboardEvent(
+                eventType, true, true, null,
+                keyCode, keyCode, null,
+                "", null
+            );
+        }
+        else {
+            throw new Error("Simulated keyboard events not supported!");
+        }
 
         // This hack is needed to make Chromium pick up the keycode.
         // Otherwise, keyCode will always be zero
@@ -94,6 +102,16 @@ class Elem {
         });
 
         this.elem.dispatchEvent(event);
+    }
+
+    /** Triggers a 'keyup' event */
+    public keyUp ( keyCode: number ): void {
+        this.keyEvent("keyup", keyCode);
+    }
+
+    /** Triggers a 'keydown' event */
+    public keyDown ( keyCode: number ): void {
+        this.keyEvent("keydown", keyCode);
     }
 
     /** Simulates typing into a field */
@@ -168,6 +186,9 @@ class QueryResult {
 /** An interface for interacting with the document */
 export class Doc {
 
+    /** The html element */
+    public html: Elem;
+
     /** The document body */
     public body: Elem;
 
@@ -185,6 +206,7 @@ export class Doc {
         this.document = window.document;
         this.doc = window.document;
         this.body = new Elem(this.document.body);
+        this.html = new Elem(this.document.documentElement);
     }
 
     /** Runs a selector query */
