@@ -4,32 +4,79 @@
         <title>Tests</title>
         <script src='/js/harness.js'></script>
         <style>
+            a {
+                color:#06c;
+                text-decoration:underline;
+            }
+            a:focus, a:hover {
+                color:#09f;
+            }
+            .suite-list {
+                -webkit-column-gap: 20px;
+                -moz-column-gap: 20px;
+                column-gap: 20px;
+            }
+            @media only screen and (min-width: 960px) {
+                .suite-list {
+                    -webkit-columns: 2;
+                    columns: 2;
+                }
+            }
+            @media only screen and (min-width: 1280px) {
+                .suite-list {
+                    -webkit-columns: 3;
+                    -moz-columns: 3;
+                    columns: 3;
+                }
+            }
+            .suite {
+                padding-bottom: 20px;
+                -webkit-column-break-inside: avoid;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .suite-title {
+                font-size: 1.2em;
+                font-weight: bold;
+            }
+            ul {
+                list-style-type: none;
+            }
             iframe {
                 width: 1px;
                 height: 1px;
                 position: absolute;
                 left: -500px;
             }
+            [test-report] {
+                line-height: 1.4em;
+                position: relative;
+            }
             [test-report]:before {
-                content: " ";
+                content: "\25CB";
                 text-decoration: none;
-                display: inline-block;
+                color: #aaa;
+                text-align: center;
+                width: 15px;
+                position: absolute;
+                display: block;
+                left: -20px;
             }
             [test-report].success:before {
-                content: "\2713 ";
+                content: "\2713";
                 color: green;
             }
             [test-report].failure:before {
-                content: "\2717 ";
+                content: "\2717";
                 color: red;
             }
             [test-report].skipped:before {
-                content: "\2012 ";
+                content: "\2012";
                 color: #0AF;
             }
             [test-report].running:before {
                 animation: spin 3s linear infinite;
-                content: "\25CC ";
+                content: "\25CC";
                 font-weight: bold;
                 color: #666;
             }
@@ -50,16 +97,15 @@
         <ul id='failures'>
         </ul>
 
-        <h1>Tests</h1>
-        <ul>
+        <ul class='suite-list'>
             {{#each suites}}
-                <li><a href='{{url}}'>{{suite}}...</a>
+                <li class='suite'>
+                    <a class='suite-title' href='{{url}}'>{{suite}}...</a>
                     <ul>
                         {{#each tests}}
                             <li>
-                                <a test-report='{{testId}}' href='{{url}}'>
-                                    {{test}}
-                                </a>
+                                <a test-report='{{testId}}'
+                                    href='{{url}}'>{{test}}</a>
                                 <script type='base64/html'
                                     {{#skip}}test-skip{{/skip}}
                                     test-case='{{testId}}'
