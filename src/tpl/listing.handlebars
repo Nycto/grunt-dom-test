@@ -11,21 +11,29 @@
             a:focus, a:hover {
                 color:#09f;
             }
-            .suite {
-                margin-bottom: 20px;
-                margin-right: 20px;
+            .suite-list {
+                -webkit-column-gap: 20px;
+                -moz-column-gap: 20px;
+                column-gap: 20px;
             }
             @media only screen and (min-width: 960px) {
-                .suite {
-                    float: left;
-                    width: 45%;
+                .suite-list {
+                    -webkit-columns: 2;
+                    columns: 2;
                 }
             }
             @media only screen and (min-width: 1280px) {
-                .suite {
-                    float: left;
-                    width: 30%;
+                .suite-list {
+                    -webkit-columns: 3;
+                    -moz-columns: 3;
+                    columns: 3;
                 }
+            }
+            .suite {
+                padding-bottom: 20px;
+                -webkit-column-break-inside: avoid;
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
             .suite-title {
                 font-size: 1.2em;
@@ -41,16 +49,18 @@
                 left: -500px;
             }
             [test-report] {
-                line-height: 20px;
+                line-height: 1.4em;
+                position: relative;
             }
             [test-report]:before {
                 content: "\25CB";
                 text-decoration: none;
-                display: inline-block;
                 color: #aaa;
-                width: 15px;
-                margin-right: 5px;
                 text-align: center;
+                width: 15px;
+                position: absolute;
+                display: block;
+                left: -20px;
             }
             [test-report].success:before {
                 content: "\2713";
@@ -87,7 +97,7 @@
         <ul id='failures'>
         </ul>
 
-        <ul>
+        <ul class='suite-list'>
             {{#each suites}}
                 <li class='suite'>
                     <a class='suite-title' href='{{url}}'>{{suite}}...</a>
