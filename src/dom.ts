@@ -109,7 +109,7 @@ class Elem {
                 Object.defineProperty(event, property, {
                     get: () => { return value; }
                 });
-            }
+            };
 
             setEventProperty("keyCode", keyCode);
             setEventProperty("shiftKey", !!mods.shift);
