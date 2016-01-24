@@ -113,6 +113,16 @@ class Elem {
         event.initEvent("change", false, true);
         input.dispatchEvent(event);
     }
+
+    /** Sets focus to this element */
+    public focus(): void {
+        this.as<HTMLElement>(this.win.HTMLElement).focus();
+    }
+
+    /** Returns whether this element currently has focus */
+    public isFocused(): boolean {
+        return this.doc.activeElement === this.elem;
+    }
 }
 
 /** The results of a query */
@@ -180,6 +190,15 @@ export class Doc {
     /** Runs a selector query */
     query(selector: string): QueryResult {
         return new QueryResult(this.doc.querySelectorAll(selector));
+    }
+
+    /** Pulls an element by ID */
+    id( id: string ): Elem {
+        var elem = this.doc.getElementById(id);
+        if ( !elem ) {
+            throw new Error( "Could not find element with id " + id );
+        }
+        return new Elem(elem);
     }
 }
 
