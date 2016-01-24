@@ -17,6 +17,14 @@ interface CustomWindow extends Window {
     HTMLInputElement: HTMLInputElement;
 }
 
+/** Extra modifiers for key events */
+interface KeyModifiers {
+    alt?: boolean;
+    ctrl?: boolean;
+    shift?: boolean;
+    meta?: boolean;
+}
+
 /** A single dom element */
 class Elem {
 
@@ -72,46 +80,58 @@ class Elem {
     }
 
     /** Triggers a keyboard based event */
-    private keyEvent ( eventType: string, keyCode: number ): void {
+    private keyEvent (
+        eventType: string,
+        keyCode: number,
+        mods: KeyModifiers
+    ): void {
         var event = this.doc.createEvent("KeyboardEvent");
 
         if ( (<any> event).initKeyEvent ) {
             (<any> event).initKeyEvent(
                 eventType, true, true, null,
-                false, false, false, false,
+                mods.ctrl || false,
+                mods.alt || false,
+                mods.shift || false,
+                mods.meta || false,
                 keyCode, keyCode
             );
         }
         else if ( (<any> event).initKeyboardEvent ) {
             (<any> event).initKeyboardEvent(
                 eventType, true, true, null,
-                keyCode, keyCode, null,
-                "", null
+                keyCode, keyCode, null, "", null
             );
+
+            // This hack is needed to make Chromium pick up the keycode.
+            // Otherwise, keyCode will always be zero
+            var setEventProperty = function ( property, value ) {
+                Object.defineProperty(event, property, {
+                    get: () => { return value; }
+                });
+            }
+
+            setEventProperty("keyCode", keyCode);
+            setEventProperty("shiftKey", !!mods.shift);
+            setEventProperty("ctrlKey", !!mods.ctrl);
+            setEventProperty("altKey", !!mods.alt);
+            setEventProperty("metaKey", !!mods.meta);
         }
         else {
             throw new Error("Simulated keyboard events not supported!");
         }
 
-        // This hack is needed to make Chromium pick up the keycode.
-        // Otherwise, keyCode will always be zero
-        Object.defineProperty(event, "keyCode", {
-            get : function() {
-                return keyCode;
-            }
-        });
-
         this.elem.dispatchEvent(event);
     }
 
     /** Triggers a 'keyup' event */
-    public keyUp ( keyCode: number ): void {
-        this.keyEvent("keyup", keyCode);
+    public keyUp ( keyCode: number, mods: KeyModifiers = {} ): void {
+        this.keyEvent("keyup", keyCode, mods);
     }
 
     /** Triggers a 'keydown' event */
-    public keyDown ( keyCode: number ): void {
-        this.keyEvent("keydown", keyCode);
+    public keyDown ( keyCode: number, mods: KeyModifiers = {} ): void {
+        this.keyEvent("keydown", keyCode, mods);
     }
 
     /** Simulates typing into a field */
