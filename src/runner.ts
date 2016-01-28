@@ -2,7 +2,12 @@ import dom = require("./dom");
 import test = require("./test");
 
 /** Runs a test */
-export = function run (testId: number, setup: test.Setup, logic: test.Logic) {
+export = function run (
+    name: string,
+    testId: number,
+    setup: test.Setup,
+    logic: test.Logic
+) {
 
     /** Reports a result back up the chain */
     function report ( result: boolean, message: string ) {
@@ -22,6 +27,23 @@ export = function run (testId: number, setup: test.Setup, logic: test.Logic) {
             document.body.insertBefore(
                 messanger, document.body.firstChild);
         }
+
+        var duration = Date.now() - window.performance.timing.domLoading;
+
+        (<any> window).global_test_results = {
+            passed: result ? 1 : 0,
+            failed: result ? 0 : 1,
+            total: 1,
+            duration: duration,
+            tests: [
+                {
+                    name: name,
+                    result: result,
+                    message: message,
+                    duration: duration
+                }
+            ]
+        };
     }
 
     // The results of the test

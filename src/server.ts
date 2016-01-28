@@ -41,6 +41,7 @@ function renderTestHtml (
     id: number = 0
 ): Q.Promise<string> {
     return render("test", {
+        name: suite.fullName() + " " + test.name,
         js: suite.allFiles(),
         testId: id,
         stylize: id === 0,
