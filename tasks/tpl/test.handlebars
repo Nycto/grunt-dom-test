@@ -7,6 +7,7 @@
             <script src='/js/user/{{this}}'></script>
         {{/each}}
         {{#stylize}}
+            <title>{{name}}</title>
             <style>
                 body.success:before {
                     background: #e6efc2;
@@ -32,7 +33,7 @@
         {{{html}}}
         <script>
             define(["runner"], function(runner) {
-                runner({{testId}}, {{{setup}}}, {{{logic}}});
+                runner(document.title, {{testId}}, {{{setup}}}, {{{logic}}});
             });
         </script>
     </body>

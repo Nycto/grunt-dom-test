@@ -290,7 +290,7 @@ define("test", ["require", "exports"], function (require, exports) {
 });
 define("runner", ["require", "exports", "dom"], function (require, exports, dom) {
     "use strict";
-    return function run(testId, setup, logic) {
+    return function run(name, testId, setup, logic) {
         function report(result, message) {
             parent.postMessage(JSON.stringify({
                 result: result,
@@ -306,6 +306,21 @@ define("runner", ["require", "exports", "dom"], function (require, exports, dom)
                 messanger.textContent = message;
                 document.body.insertBefore(messanger, document.body.firstChild);
             }
+            var duration = Date.now() - window.performance.timing.domLoading;
+            window.global_test_results = {
+                passed: result ? 1 : 0,
+                failed: result ? 0 : 1,
+                total: 1,
+                duration: duration,
+                tests: [
+                    {
+                        name: name,
+                        result: result,
+                        message: message,
+                        duration: duration
+                    }
+                ]
+            };
         }
         var complete;
         function done(result, message) {

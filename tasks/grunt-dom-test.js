@@ -332,6 +332,7 @@ define("server", ["require", "exports", "definition", "q", "fs", "express", "com
     function renderTestHtml(suite, test, id) {
         if (id === void 0) { id = 0; }
         return render("test", {
+            name: suite.fullName() + " " + test.name,
             js: suite.allFiles(),
             testId: id,
             stylize: id === 0,
