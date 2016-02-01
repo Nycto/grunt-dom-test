@@ -17,13 +17,13 @@
                 -moz-column-gap: 20px;
                 column-gap: 20px;
             }
-            @media only screen and (min-width: 960px) {
+            @media only screen and (min-width: 700px) {
                 .suite-list {
                     -webkit-columns: 2;
                     columns: 2;
                 }
             }
-            @media only screen and (min-width: 1280px) {
+            @media only screen and (min-width: 1000px) {
                 .suite-list {
                     -webkit-columns: 3;
                     -moz-columns: 3;
@@ -47,7 +47,7 @@
                 width: 100vw;
                 height: 100vh;
                 position: absolute;
-                left: calc(0px - 200vw);
+                left: -10000px;
             }
             [test-report] {
                 line-height: 1.4em;
@@ -121,11 +121,15 @@
         </ul>
 
         <script>
+            window.global_load_urls = [];
             Harness.start(
                 function onComplete (results) {
                     window.global_test_results = results;
+                    window.scroll(0, 0);
                 },
                 function onError (result, url) {
+                    window.global_load_urls.push(url);
+
                     var link = document.createElement("a");
                     link.textContent = result.name;
                     link.href = url;
