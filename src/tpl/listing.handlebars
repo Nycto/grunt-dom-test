@@ -125,6 +125,7 @@
             Harness.start(
                 function onComplete (results) {
                     window.global_test_results = results;
+                    window.scroll(0, 0);
                 },
                 function onError (result, url) {
                     window.global_load_urls.push(url);
