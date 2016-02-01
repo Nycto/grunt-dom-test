@@ -121,11 +121,14 @@
         </ul>
 
         <script>
+            window.global_load_urls = [];
             Harness.start(
                 function onComplete (results) {
                     window.global_test_results = results;
                 },
                 function onError (result, url) {
+                    window.global_load_urls.push(url);
+
                     var link = document.createElement("a");
                     link.textContent = result.name;
                     link.href = url;
