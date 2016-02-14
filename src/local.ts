@@ -3,8 +3,8 @@
 /// <reference path="../typings/jsdom/jsdom.d.ts"/>
 /// <reference path="../typings/node/node.d.ts"/>
 
-import def = require("./definition");
-import dom = require("./dom");
+import {Suite, Test} from "./definition";
+import {Doc} from "./dom";
 
 import jsdom = require("jsdom");
 import Mocha = require("mocha");
@@ -46,7 +46,7 @@ function convertAssertion ( err: any ): Error {
 }
 
 /** Wraps a test in a jsdom document */
-function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
+function buildTest ( suite: Suite, test: Test ): Mocha.ITest {
 
     if ( test.skip ) {
         return new (<any> Mocha).Test(test.name);
@@ -80,7 +80,7 @@ function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
         // Once the scripts are added, execute the test
         Q.all(scripts)
             .then(() => {
-                var doc = new dom.Doc(window);
+                var doc = new Doc(window);
                 if ( suite.setup ) {
                     suite.setup(doc);
                 }
@@ -96,7 +96,7 @@ function buildTest ( suite: def.Suite, test: def.Test ): Mocha.ITest {
 }
 
 /** Converts a DOM-Test Suite object to a Mocha suite */
-export function toMocha ( suites: def.Suite[] ): Mocha {
+export function toMocha ( suites: Suite[] ): Mocha {
     var root: any = new Mocha();
 
     suites.forEach(suite => {

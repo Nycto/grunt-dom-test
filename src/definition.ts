@@ -4,8 +4,7 @@
 
 /// <reference path="../typings/node/node.d.ts"/>
 
-import test = require("./test");
-import dom = require("./dom");
+import {Logic, Setup} from "./test";
 
 import fs = require("fs");
 
@@ -14,7 +13,7 @@ export class Test {
     constructor (
         public name: string,
         public html: string,
-        public fn: test.Logic,
+        public fn: Logic,
         public skip: boolean
     ) {}
 }
@@ -32,6 +31,11 @@ function find<T extends { name: string }>( list: T[], name: string ): T {
 /** A suite is a set of named tests */
 export class Suite {
 
+    /** Finds the suite with the given name, or returns undefined */
+    static find( suites: Suite[], name: string ): Suite {
+        return find(suites, name);
+    }
+
     /** Individual files to load */
     files: string[] = [];
 
@@ -42,7 +46,7 @@ export class Suite {
     tests: Test[] = [];
 
     /** A function that is executed before each test */
-    setup: test.Setup = null;
+    setup: Setup = null;
 
     constructor( public prefix: string, public name: string ) {}
 
@@ -66,10 +70,5 @@ export class Suite {
     findTest( name: string ): Test {
         return find(this.tests, name);
     }
-};
-
-/** Finds the suite with the given name, or returns undefined */
-export function findSuite( suites: Suite[], name: string ): Suite {
-    return find(suites, name);
 }
 

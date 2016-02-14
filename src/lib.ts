@@ -2,34 +2,33 @@
  * The primary entry point for defining DOM Test components
  */
 
-import def = require("./definition");
-import dom = require("./dom");
-import test = require("./test");
+import {Suite, Test} from "./definition";
+import {Logic, Setup} from "./test";
 
-var suites: def.Suite[] = [];
+var suites: Suite[] = [];
 
 /** A fluent interface for defining a test */
 class TestBuilder {
     constructor(
         protected title: string,
         private html: string,
-        protected built: (name: def.Test) => SuiteBuilder
+        protected built: (name: Test) => SuiteBuilder
     ) {}
 
     /** Sets the test function */
-    in(test: test.Logic): SuiteBuilder {
-        return this.built( new def.Test(this.title, this.html, test, false) );
+    in(test: Logic): SuiteBuilder {
+        return this.built( new Test(this.title, this.html, test, false) );
     }
 
     /** Sets the test function, but marks the test for skipping */
-    skip(test: test.Logic): SuiteBuilder {
-        return this.built( new def.Test(this.title, this.html, test, true) );
+    skip(test: Logic): SuiteBuilder {
+        return this.built( new Test(this.title, this.html, test, true) );
     }
 }
 
 /** An extension to the test defining interface that allows html to be set */
 class HtmlTestBuilder extends TestBuilder {
-    constructor(title: string, built: (name: def.Test) => SuiteBuilder) {
+    constructor(title: string, built: (name: Test) => SuiteBuilder) {
         super(title, "", built);
     }
 
@@ -43,15 +42,15 @@ class HtmlTestBuilder extends TestBuilder {
 class SuiteBuilder {
 
     /** The suite being constructed */
-    private suite: def.Suite;
+    private suite: Suite;
 
     constructor ( suitePrefix: string, suiteTitle: string ) {
-        this.suite = new def.Suite(suitePrefix, suiteTitle);
+        this.suite = new Suite(suitePrefix, suiteTitle);
         suites.push(this.suite);
     }
 
     /** A function to run before running a test */
-    setup ( fn: test.Setup ): this {
+    setup ( fn: Setup ): this {
         this.suite.setup = fn;
         return this;
     }

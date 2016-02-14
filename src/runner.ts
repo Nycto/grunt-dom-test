@@ -1,12 +1,12 @@
-import dom = require("./dom");
-import test = require("./test");
+import {Doc} from "./dom";
+import {Setup, Logic} from "./test";
 
 /** Runs a test */
 export = function run (
     name: string,
     testId: number,
-    setup: test.Setup,
-    logic: test.Logic
+    setup: Setup,
+    logic: Logic
 ) {
 
     /** Reports a result back up the chain */
@@ -77,7 +77,7 @@ export = function run (
     // 500ms timeout for running the test
     setTimeout(() => { done(false, "Test Timeout"); }, 500);
 
-    var doc = new dom.Doc(window);
+    var doc = new Doc(window);
 
     if ( setup ) {
         setup(doc);

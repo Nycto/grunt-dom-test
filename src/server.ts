@@ -4,7 +4,7 @@
 /// <reference path="../typings/node/node.d.ts"/>
 /// <reference path="../typings/handlebars/handlebars.d.ts"/>
 
-import def = require("./definition");
+import {Suite, Test} from "./definition";
 
 import Q = require("q");
 import fs = require("fs");
@@ -36,8 +36,8 @@ function render( file: string, data: any ): Q.Promise<string> {
 
 /** Generates the full HTML needed to run a test */
 function renderTestHtml (
-    suite: def.Suite,
-    test: def.Test,
+    suite: Suite,
+    test: Test,
     id: number = 0
 ): Q.Promise<string> {
     return render("test", {
@@ -53,7 +53,7 @@ function renderTestHtml (
 }
 
 /** Servers the list of test suites */
-function renderSuiteList ( suites: def.Suite[] ) {
+function renderSuiteList ( suites: Suite[] ) {
 
     var autoinc = 0;
 
@@ -120,7 +120,7 @@ function serveJs (
 /** Starts a local server that serves up test code */
 export class Server {
 
-    constructor( private getSuites: () => def.Suite[] ) {}
+    constructor( private getSuites: () => Suite[] ) {}
 
     /** Start a new server, returning a URL at which it can be accessed */
     start(): Q.Promise<string> {
@@ -160,7 +160,7 @@ export class Server {
 
         //Serve a single test suite
         server.get("/:suite", (req, res) => {
-            var suite = def.findSuite(this.getSuites(), req.params.suite);
+            var suite = Suite.find(this.getSuites(), req.params.suite);
             if ( suite ) {
                 serveHtml(res, renderSuiteList([ suite ]));
             }
@@ -171,7 +171,7 @@ export class Server {
 
         // Serve an HTML file with a specific test
         server.get("/:suite/:test", (req, res) => {
-            var suite = def.findSuite(this.getSuites(), req.params.suite);
+            var suite = Suite.find(this.getSuites(), req.params.suite);
             if ( suite ) {
                 var test = suite.findTest(req.params.test);
                 if ( test ) {

@@ -4,9 +4,9 @@
 
 /// <reference path="../typings/gruntjs/gruntjs.d.ts" />
 
-import def = require("./definition");
-import local = require("./local");
-import server = require("./server");
+import {Suite} from "./definition";
+import {toMocha} from "./local";
+import {Server} from "./server";
 
 /** The list of valid options that can be passed to this module */
 class Options {
@@ -27,7 +27,7 @@ export = function ( grunt: IGrunt ) {
     const opts = new Options("domTest", grunt);
 
     /** Returns a list of suites */
-    function suites(): def.Suite[] {
+    function suites(): Suite[] {
 
         var lib = require("../lib/grunt-dom-test.js").__private;
 
@@ -54,7 +54,7 @@ export = function ( grunt: IGrunt ) {
             var done = this.async();
 
             // Start the server if it hasn't been spun up yet
-            var httpServer = new server.Server( suites );
+            var httpServer = new Server( suites );
 
             httpServer.start().then((url) => {
                 grunt.log.subhead("Server started: " + url);
@@ -77,7 +77,7 @@ export = function ( grunt: IGrunt ) {
 
             var done = self.async();
 
-            local.toMocha( suites() ).run((failures: number) => {
+            toMocha( suites() ).run((failures: number) => {
                 done(failures === 0);
             });
         }
