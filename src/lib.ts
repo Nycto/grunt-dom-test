@@ -2,7 +2,7 @@
  * The primary entry point for defining DOM Test components
  */
 
-import {Suite, Test} from "./definition";
+import {Suite, Test, SkipMode} from "./definition";
 import {Logic, Setup} from "./test";
 
 var suites: Suite[] = [];
@@ -17,12 +17,20 @@ class TestBuilder {
 
     /** Sets the test function */
     in(test: Logic): SuiteBuilder {
-        return this.built( new Test(this.title, this.html, test, false) );
+        return this.built(
+            new Test(this.title, this.html, test, SkipMode.Run) );
     }
 
     /** Sets the test function, but marks the test for skipping */
     skip(test: Logic): SuiteBuilder {
-        return this.built( new Test(this.title, this.html, test, true) );
+        return this.built(
+            new Test(this.title, this.html, test, SkipMode.Skip) );
+    }
+
+    /** Skips a test in Node */
+    inBrowsersOnly(test: Logic): SuiteBuilder {
+        return this.built(
+            new Test(this.title, this.html, test, SkipMode.BrowserOnly) );
     }
 }
 

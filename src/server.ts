@@ -4,7 +4,7 @@
 /// <reference path="../typings/node/node.d.ts"/>
 /// <reference path="../typings/handlebars/handlebars.d.ts"/>
 
-import {Suite, Test} from "./definition";
+import {Suite, Test, SkipMode} from "./definition";
 
 import Q = require("q");
 import fs = require("fs");
@@ -70,7 +70,7 @@ function renderSuiteList ( suites: Suite[] ) {
                         "/" + encodeURIComponent(test.name),
                     content: html,
                     testId: id,
-                    skip: test.skip
+                    skip: test.skip === SkipMode.Skip
                 };
             });
         }));

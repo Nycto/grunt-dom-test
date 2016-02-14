@@ -3,7 +3,7 @@
 /// <reference path="../typings/jsdom/jsdom.d.ts"/>
 /// <reference path="../typings/node/node.d.ts"/>
 
-import {Suite, Test} from "./definition";
+import {Suite, Test, SkipMode} from "./definition";
 import {Doc} from "./dom";
 
 import jsdom = require("jsdom");
@@ -48,7 +48,7 @@ function convertAssertion ( err: any ): Error {
 /** Wraps a test in a jsdom document */
 function buildTest ( suite: Suite, test: Test ): Mocha.ITest {
 
-    if ( test.skip ) {
+    if ( test.skip !== SkipMode.Run ) {
         return new (<any> Mocha).Test(test.name);
     }
 

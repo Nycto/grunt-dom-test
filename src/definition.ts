@@ -8,13 +8,20 @@ import {Logic, Setup} from "./test";
 
 import fs = require("fs");
 
+/** The different ways a test can be skipped */
+export enum SkipMode {
+    Run,
+    Skip,
+    BrowserOnly
+}
+
 /** Bundled data about a test */
 export class Test {
     constructor (
         public name: string,
         public html: string,
         public fn: Logic,
-        public skip: boolean
+        public skip: SkipMode
     ) {}
 }
 
