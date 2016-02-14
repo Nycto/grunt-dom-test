@@ -189,6 +189,12 @@ define("test", ["require", "exports"], function (require, exports) {
 });
 define("definition", ["require", "exports"], function (require, exports) {
     "use strict";
+    (function (SkipMode) {
+        SkipMode[SkipMode["Run"] = 0] = "Run";
+        SkipMode[SkipMode["Skip"] = 1] = "Skip";
+        SkipMode[SkipMode["BrowserOnly"] = 2] = "BrowserOnly";
+    })(exports.SkipMode || (exports.SkipMode = {}));
+    var SkipMode = exports.SkipMode;
     var Test = (function () {
         function Test(name, html, fn, skip) {
             this.name = name;
@@ -217,6 +223,9 @@ define("definition", ["require", "exports"], function (require, exports) {
             this.tests = [];
             this.setup = null;
         }
+        Suite.find = function (suites, name) {
+            return find(suites, name);
+        };
         Suite.prototype.fullName = function () {
             return this.prefix + " " + this.name + " should";
         };
@@ -233,13 +242,8 @@ define("definition", ["require", "exports"], function (require, exports) {
         return Suite;
     }());
     exports.Suite = Suite;
-    ;
-    function findSuite(suites, name) {
-        return find(suites, name);
-    }
-    exports.findSuite = findSuite;
 });
-define("local", ["require", "exports", "dom", "jsdom", "mocha", "q"], function (require, exports, dom, jsdom, Mocha, Q) {
+define("local", ["require", "exports", "definition", "dom", "jsdom", "mocha", "q"], function (require, exports, definition_1, dom_1, jsdom, Mocha, Q) {
     "use strict";
     function addScript(doc, path) {
         var deferred = Q.defer();
@@ -265,7 +269,7 @@ define("local", ["require", "exports", "dom", "jsdom", "mocha", "q"], function (
         return converted;
     }
     function buildTest(suite, test) {
-        if (test.skip) {
+        if (test.skip !== definition_1.SkipMode.Run) {
             return new Mocha.Test(test.name);
         }
         return new Mocha.Test(test.name, function (done) {
@@ -286,7 +290,7 @@ define("local", ["require", "exports", "dom", "jsdom", "mocha", "q"], function (
                 .map(function (path) { return addScript(window.document, path); });
             Q.all(scripts)
                 .then(function () {
-                var doc = new dom.Doc(window);
+                var doc = new dom_1.Doc(window);
                 if (suite.setup) {
                     suite.setup(doc);
                 }
@@ -312,7 +316,7 @@ define("local", ["require", "exports", "dom", "jsdom", "mocha", "q"], function (
     }
     exports.toMocha = toMocha;
 });
-define("server", ["require", "exports", "definition", "q", "fs", "express", "compression", "handlebars"], function (require, exports, def, Q, fs, express, compression, Handlebars) {
+define("server", ["require", "exports", "definition", "q", "fs", "express", "compression", "handlebars"], function (require, exports, definition_2, Q, fs, express, compression, Handlebars) {
     "use strict";
     function serveHtml(res, html) {
         html.then(function (content) {
@@ -354,7 +358,7 @@ define("server", ["require", "exports", "definition", "q", "fs", "express", "com
                             "/" + encodeURIComponent(test.name),
                         content: html,
                         testId: id,
-                        skip: test.skip
+                        skip: test.skip === definition_2.SkipMode.Skip
                     };
                 });
             }));
@@ -416,7 +420,7 @@ define("server", ["require", "exports", "definition", "q", "fs", "express", "com
                 serveHtml(res, renderSuiteList(_this.getSuites()));
             });
             server.get("/:suite", function (req, res) {
-                var suite = def.findSuite(_this.getSuites(), req.params.suite);
+                var suite = definition_2.Suite.find(_this.getSuites(), req.params.suite);
                 if (suite) {
                     serveHtml(res, renderSuiteList([suite]));
                 }
@@ -425,7 +429,7 @@ define("server", ["require", "exports", "definition", "q", "fs", "express", "com
                 }
             });
             server.get("/:suite/:test", function (req, res) {
-                var suite = def.findSuite(_this.getSuites(), req.params.suite);
+                var suite = definition_2.Suite.find(_this.getSuites(), req.params.suite);
                 if (suite) {
                     var test = suite.findTest(req.params.test);
                     if (test) {
@@ -448,7 +452,7 @@ define("server", ["require", "exports", "definition", "q", "fs", "express", "com
     }());
     exports.Server = Server;
 });
-define("task", ["require", "exports", "local", "server"], function (require, exports, local, server) {
+define("task", ["require", "exports", "local", "server"], function (require, exports, local_1, server_1) {
     "use strict";
     var Options = (function () {
         function Options(name, grunt) {
@@ -475,7 +479,7 @@ define("task", ["require", "exports", "local", "server"], function (require, exp
         grunt.registerTask(opts.name + ":server", "Starts a server to run tests in browser", function () {
             var self = this;
             var done = this.async();
-            var httpServer = new server.Server(suites);
+            var httpServer = new server_1.Server(suites);
             httpServer.start().then(function (url) {
                 grunt.log.subhead("Server started: " + url);
                 grunt.log.writeln("");
@@ -487,7 +491,7 @@ define("task", ["require", "exports", "local", "server"], function (require, exp
         grunt.registerTask(opts.name + ":test", "Executes unit tests in Node with jsdom", function () {
             var self = this;
             var done = self.async();
-            local.toMocha(suites()).run(function (failures) {
+            local_1.toMocha(suites()).run(function (failures) {
                 done(failures === 0);
             });
         });

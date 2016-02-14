@@ -288,7 +288,7 @@ define("dom", ["require", "exports"], function (require, exports) {
 define("test", ["require", "exports"], function (require, exports) {
     "use strict";
 });
-define("runner", ["require", "exports", "dom"], function (require, exports, dom) {
+define("runner", ["require", "exports", "dom"], function (require, exports, dom_1) {
     "use strict";
     return function run(name, testId, setup, logic) {
         function report(result, message) {
@@ -337,7 +337,7 @@ define("runner", ["require", "exports", "dom"], function (require, exports, dom)
         }
         window.onerror = function (err) { done(false, err); };
         setTimeout(function () { done(false, "Test Timeout"); }, 500);
-        var doc = new dom.Doc(window);
+        var doc = new dom_1.Doc(window);
         if (setup) {
             setup(doc);
         }
